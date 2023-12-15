@@ -1,5 +1,6 @@
 import pygame
 
+a = 'aaa'
 pygame.init()
 pygame.display.set_caption('Движущийся круг 2')
 size = width, height = 600, 600
