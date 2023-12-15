@@ -1,4 +1,3 @@
-import random
 import pygame
 
 pygame.init()
@@ -10,6 +9,7 @@ blocks = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
+particles = pygame.sprite.Group()
 
 
 def load_image(name, colorkey=None):
