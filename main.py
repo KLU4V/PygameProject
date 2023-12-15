@@ -1,6 +1,5 @@
 import pygame
 
-a = 'aa'
 pygame.init()
 pygame.display.set_caption('Движущийся круг 2')
 size = width, height = 600, 600
@@ -11,7 +10,7 @@ all_sprites = pygame.sprite.Group()
 hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
-print("hello wordl")
+
 
 def load_image(name, colorkey=None):
     image = pygame.image.load(name)
