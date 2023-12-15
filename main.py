@@ -10,7 +10,7 @@ all_sprites = pygame.sprite.Group()
 hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
-
+print("hello wordl")
 
 def load_image(name, colorkey=None):
     image = pygame.image.load(name)
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill((255, 255, 255))
+        screen.fill((0, 0, 0))
         all_sprites.draw(screen)
         all_sprites.update()
         clock.tick(60)
