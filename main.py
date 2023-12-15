@@ -17,6 +17,10 @@ def load_image(name, colorkey=None):
     return image
 
 
+def pisa():
+    pass
+
+
 class Hero(pygame.sprite.Sprite):
     image = load_image("hero.png")
 
