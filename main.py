@@ -33,6 +33,7 @@ class Hero(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.direction_x = 0
+        self.direction_y = 1
         self.moved = False
         self.tick_jump_counter = 1
         self.jump_flag = False
@@ -63,12 +64,37 @@ class Hero(pygame.sprite.Sprite):
             self.tick_jump_counter = 1
             self.jump_flag = False
 
-    def check_gorund(self):
+    def check_ground(self):
         if self.moved is True:
             for i in fallen_blocks:
-                if pygame.sprite.collide_rect(self, i):
-                    self.rect.x -= self.direction_x
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 1:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
             self.moved = False
+
+    def lower(self):
+        self.rect.y += 1
+        if pygame.sprite.spritecollideany(self, fallen_blocks) or self.rect.y + 64 != 800:
+            self.rect.y -= 1
+
+    def check_death(self):
+        for i in blocks:
+            if (i.rect.midbottom[1] != self.rect.midtop[1] + 1 and pygame.sprite.collide_rect(self, i)
+                    and i.rect.x <= self.rect.x <= i.rect.x):
+                return True
+            return False
+
+    # def check_blocks(self):
+    #     for i in blocks:
+    #         while pygame.sprite.collide_rect(self, i):
+    #             if (not i.rect.midbottom[1] != self.rect.midtop[1] + 1 and not i.rect.x <= self.rect.x <= i.rect.x
+    #                     and self.rect.midbottom[1] != i.rect.midtop[1] + 1 and pygame.sprite.collide_rect(self, i)):
+    #                 self.rect.x -= self.direction_x
+    #             else:
+    #                 break
 
 
 class Blocks(pygame.sprite.Sprite):
@@ -122,9 +148,6 @@ class Blocks(pygame.sprite.Sprite):
                 self.remove(blocks)
                 self.movement_flag = False
 
-    def coords(self):
-        return [self.rect.x, self.rect.y]
-
 
 character = Hero()
 
@@ -140,12 +163,17 @@ if __name__ == '__main__':
                     character.jump()
                 if event.key == pygame.K_w:
                     character.jump()
+                character.check_ground()
             if pygame.key.get_pressed()[K_a]:
                 character.run(-4)
             if pygame.key.get_pressed()[K_d]:
                 character.run(4)
+            if pygame.key.get_pressed()[K_s]:
+                character.lower()
         character.check_air()
-        character.check_gorund()
+        character.check_ground()
+        character.check_death()
+        # character.check_blocks()
         if random.randint(0, 40) == 3:
             block = Blocks()
         screen.fill((0, 0, 0))
