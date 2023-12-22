@@ -14,6 +14,8 @@ hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
 
+possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
 
 def load_image(name, colorkey=None):
     image = pygame.image.load(name)
@@ -97,22 +99,31 @@ class Hero(pygame.sprite.Sprite):
     #                 break
 
 
-class Blocks(pygame.sprite.Sprite):
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self):
+        self.dy = +47
+
+
+class Block(pygame.sprite.Sprite):
     image_placedTitle = load_image("placed_tile.png")
     image_placedTitle = pygame.transform.scale(image_placedTitle, (48, 48))
-    image = load_image("tile.png")
-    image = pygame.transform.scale(image, (48, 48))
+    image_fallingTitle = load_image("tile.png")
+    image_fallingTitle = pygame.transform.scale(image_fallingTitle, (48, 48))
 
     def __init__(self):
-
         super().__init__(all_sprites)
-
-        x = random.randint(1, 10)
 
         self.rotate_angle = random.randint(1, 4) * 90
 
-        self.image = pygame.transform.rotate(self.image, self.rotate_angle)
-        self.image_placedTitle = pygame.transform.rotate(self.image_placedTitle, self.rotate_angle)
+        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
 
         self.add(blocks)
 
@@ -120,15 +131,8 @@ class Blocks(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.movement_flag = False
-        self.transformed = False
 
-        while self.movement_flag is False:
-            for i in blocks:
-                if pygame.sprite.collide_mask(self, i):
-                    self.movement_flag = True
-                    self.rect.x = x * 48
-            x = random.randint(1, 10)
-        self.rect.y = -48
+        self.rect.y = 900
 
     def update(self):
         for i in fallen_blocks:
@@ -136,22 +140,76 @@ class Blocks(pygame.sprite.Sprite):
                 self.add(fallen_blocks)
                 self.remove(blocks)
                 self.movement_flag = False
-                self.image = self.image_placedTitle
+                self.image = pygame.transform.rotate(self.image_placedTitle, self.rotate_angle)
 
         if self.movement_flag:
             if 0 <= self.rect.y + 48 < 800:
                 self.rect = self.rect.move(0, 2)
 
             elif self.rect.y + 48 == 800:
-                self.image = self.image_placedTitle
+                self.image = pygame.transform.rotate(self.image_placedTitle, self.rotate_angle)
                 self.add(fallen_blocks)
                 self.remove(blocks)
                 self.movement_flag = False
 
+    def spawn(self):
+        global possibilities
+
+        self.rotate_angle = random.randint(1, 4) * 90
+
+        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
+
+        self.rect = self.image.get_rect()
+
+        self.add(blocks)
+        self.remove(fallen_blocks)
+
+        random.shuffle(possibilities)
+        if possibilities:
+            x = possibilities[0]
+            possibilities.pop(0)
+
+        else:
+            possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            x = possibilities[0]
+            possibilities.pop(0)
+
+        self.movement_flag = True
+
+        self.rect.x = x * 48
+        self.rect.y = -48
+
+    def invisible(self):
+        self.rect.y = 900
+
+
+(block1, block2, block3, block4, block5, block6, block7, block8,
+ block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20) = (
+    Block(), Block(), Block(), Block(),
+    Block(), Block(), Block(), Block(),
+    Block(), Block(),
+    Block(), Block(), Block(), Block(),
+    Block(), Block(), Block(), Block(),
+    Block(), Block())
+
+blocks_dct = {1: [block1, True], 2: [block2, True], 3: [block3, True], 4: [block4, True], 5: [block5, True],
+              6: [block6, True], 7: [block7, True], 8: [block8, True], 9: [block9, True], 10: [block10, True],
+              11: [block11, False], 12: [block12, False], 13: [block13, False], 14: [block14, False],
+              15: [block15, False], 16: [block16, False], 17: [block17, False], 18: [block18, False],
+              19: [block19, False], 20: [block20, False]}
 
 character = Hero()
+camera = Camera()
 
-if __name__ == '__main__':
+for value in blocks_dct.values():
+    if value[1] is True:
+        value[0].spawn()
+        value[0].rect.y = 730
+
+
+def main():
+    global running, camera, character
+
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
     while running:
@@ -174,10 +232,38 @@ if __name__ == '__main__':
         character.check_ground()
         character.check_death()
         # character.check_blocks()
+
         if random.randint(0, 40) == 3:
-            block = Blocks()
+            for value in blocks_dct.values():
+                if value[1] is False:
+                    value[1] = True
+                    value[0].spawn()
+                    break
+
+        respawn = list()
+
+        for value in blocks_dct.values():
+            for up in blocks_dct.values():
+                if (value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758
+                    and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
+                        and up[0].movement_flag is False):
+                    respawn.append(value[0])
+
+        if len(respawn) == 10:
+            for value in blocks_dct.values():
+                if value[0] in respawn:
+                    value[1] = False
+                    value[0].invisible()
+                camera.update()
+            for sprite in fallen_blocks:
+                camera.apply(sprite)
+
         screen.fill((0, 0, 0))
         all_sprites.update()
         all_sprites.draw(screen)
         clock.tick(60)
         pygame.display.flip()
+
+
+if __name__ == '__main__':
+    main()
