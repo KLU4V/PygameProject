@@ -75,6 +75,13 @@ class Hero(pygame.sprite.Sprite):
 
                     else:
                         break
+            for i in blocks:
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 1:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
             self.moved = False
 
     def lower(self):
@@ -84,8 +91,7 @@ class Hero(pygame.sprite.Sprite):
 
     def check_death(self):
         for i in blocks:
-            if (i.rect.midbottom[1] != self.rect.midtop[1] + 1 and pygame.sprite.collide_rect(self, i)
-                    and i.rect.x <= self.rect.x <= i.rect.x):
+            if pygame.sprite.collide_rect(self, i) and i.rect.topleft[0] <= self.rect.centerx <= i.rect.topright[0]:
                 return True
             return False
 
@@ -182,6 +188,24 @@ class Block(pygame.sprite.Sprite):
     def invisible(self):
         self.rect.y = 900
 
+    def default(self):
+        global possibilities
+
+        possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+        self.rotate_angle = random.randint(1, 4) * 90
+
+        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
+
+        self.add(blocks)
+
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.movement_flag = False
+
+        self.rect.y = 900
+
 
 (block1, block2, block3, block4, block5, block6, block7, block8,
  block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20) = (
@@ -201,66 +225,98 @@ blocks_dct = {1: [block1, True], 2: [block2, True], 3: [block3, True], 4: [block
 character = Hero()
 camera = Camera()
 
-for value in blocks_dct.values():
-    if value[1] is True:
-        value[0].spawn()
-        value[0].rect.y = 730
-
 
 def main():
     global running, camera, character
 
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
+    dead = False
+
+    for value in blocks_dct.values():
+        if value[1] is True:
+            value[0].spawn()
+            value[0].rect.y = 752
+
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    character.jump()
-                if event.key == pygame.K_w:
-                    character.jump()
-                character.check_ground()
-            if pygame.key.get_pressed()[K_a]:
-                character.run(-4)
-            if pygame.key.get_pressed()[K_d]:
-                character.run(4)
-            if pygame.key.get_pressed()[K_s]:
-                character.lower()
-        character.check_air()
-        character.check_ground()
-        character.check_death()
-        # character.check_blocks()
+        if not dead:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        character.jump()
+                    if event.key == pygame.K_w:
+                        character.jump()
+                    character.check_ground()
+                if pygame.key.get_pressed()[K_a]:
+                    character.run(-4)
+                if pygame.key.get_pressed()[K_d]:
+                    character.run(4)
+                if pygame.key.get_pressed()[K_s]:
+                    character.lower()
 
-        if random.randint(0, 40) == 3:
+            character.check_air()
+            character.check_ground()
+
+            if character.check_death():
+                dead = True
+
+            if random.randint(0, 40) == 3:
+                for value in blocks_dct.values():
+                    if value[1] is False:
+                        value[1] = True
+                        value[0].spawn()
+                        break
+
+            respawn = list()
+
             for value in blocks_dct.values():
-                if value[1] is False:
+                for up in blocks_dct.values():
+                    if (value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758
+                            and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
+                            and up[0].movement_flag is False):
+                        respawn.append(value[0])
+
+            if len(respawn) == 10:
+                for value in blocks_dct.values():
+                    if value[0] in respawn:
+                        value[1] = False
+                        value[0].invisible()
+                    camera.update()
+                for sprite in fallen_blocks:
+                    camera.apply(sprite)
+
+            screen.fill((0, 0, 0))
+            all_sprites.update()
+            all_sprites.draw(screen)
+
+        else:
+            for c, value in enumerate(blocks_dct.values()):
+                value[0].default()
+                if c < 10:
                     value[1] = True
-                    value[0].spawn()
-                    break
-
-        respawn = list()
-
-        for value in blocks_dct.values():
-            for up in blocks_dct.values():
-                if (value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758
-                    and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
-                        and up[0].movement_flag is False):
-                    respawn.append(value[0])
-
-        if len(respawn) == 10:
-            for value in blocks_dct.values():
-                if value[0] in respawn:
+                else:
                     value[1] = False
-                    value[0].invisible()
-                camera.update()
-            for sprite in fallen_blocks:
-                camera.apply(sprite)
 
-        screen.fill((0, 0, 0))
-        all_sprites.update()
-        all_sprites.draw(screen)
+            for value in blocks_dct.values():
+                if value[1] is True:
+                    value[0].spawn()
+                    value[0].rect.y = 752
+            character.rect.y = 650
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        dead = False
+
+            f = pygame.font.Font("Silkscreen-Regular.ttf", 36)
+            deadtext = f.render('R to restart', True,
+                                (255, 255, 255))
+            screen.blit(deadtext, (150, 400))
+
         clock.tick(60)
         pygame.display.flip()
 
