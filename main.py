@@ -15,6 +15,7 @@ all_sprites = pygame.sprite.Group()
 hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
+ghost_blocks = pygame.sprite.Group()
 
 possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
@@ -143,21 +144,18 @@ class Hero(pygame.sprite.Sprite):
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
-            self.image = self.jumpAn[5]
 
         elif self.jump_flag[0] is True and self.jump_flag[1] == "right" and self.tick_jump_counter != 10:
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
             self.rect.x += 3
-            self.image = self.jumpAn[5]
 
         elif self.jump_flag[0] is True and self.jump_flag[1] == "left" and self.tick_jump_counter != 10:
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
             self.rect.x -= 3
-            self.image = self.jumpAn[5]
 
         elif self.tick_jump_counter == 10:
             self.tick_jump_counter = 1
@@ -189,7 +187,10 @@ class Hero(pygame.sprite.Sprite):
 
     def check_death(self):
         for i in blocks:
-            if pygame.sprite.collide_rect(self, i) and i.rect.topleft[0] <= self.rect.centerx <= i.rect.topright[0]:
+            if (pygame.sprite.collide_rect(self, i) and (
+                    i.rect.topleft[0] <= self.rect.left + self.direction_x <= i.rect.topright[0]
+                    or i.rect.topleft[0] <= self.rect.right + self.direction_x <= i.rect.topright[
+                        0])):
                 return True
             return False
 
@@ -198,19 +199,27 @@ class Camera:
     def __init__(self):
         self.dx = 0
         self.dy = 0
+        self.upFlag = False
+        self.count = 1
 
     def apply(self, obj):
         obj.rect.x += self.dx
         obj.rect.y += self.dy
 
     def update(self):
-        self.dy = +47
+        if self.upFlag is True and self.count <= 46:
+            self.dy = 1
+            self.count += 1
+
+    def default(self):
+        self.count = 0
+        self.upFlag = False
 
 
 class Block(pygame.sprite.Sprite):
-    image_placedTitle = load_image("graphics/textures/placed_tile.png")
+    image_placedTitle = load_image("graphics/textures/falling_tile.png")
     image_placedTitle = pygame.transform.scale(image_placedTitle, (48, 48))
-    image_fallingTitle = load_image("graphics/textures/tile.png")
+    image_fallingTitle = load_image("graphics/textures/placed_tile.png")
     image_fallingTitle = pygame.transform.scale(image_fallingTitle, (48, 48))
 
     def __init__(self):
@@ -296,12 +305,36 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = 900
 
 
+class GhostBlock(pygame.sprite.Sprite):
+    image = load_image("graphics/textures/placed_tile.png")
+    image = pygame.transform.scale(image, (48, 48))
+
+    def __init__(self):
+        super().__init__(all_sprites)
+
+        self.image = pygame.transform.rotate(self.image, 0)
+
+        self.add(ghost_blocks)
+
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect.y = 900
+
+    def replace(self, x, y, rotation):
+        self.rect.x, self.rect.y = x, y
+        self.image = pygame.transform.rotate(self.image, rotation)
+
+
 (block1, block2, block3, block4, block5, block6, block7, block8,
- block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20) = (
+ block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21,
+ block22, block23, block24, block25, block26, block27, block28, block29, block30) = (
     Block(), Block(), Block(), Block(),
     Block(), Block(), Block(), Block(),
     Block(), Block(),
     Block(), Block(), Block(), Block(),
+    Block(), Block(), Block(), Block(),
+    Block(), Block(), Block(), Block(), Block(), Block(),
     Block(), Block(), Block(), Block(),
     Block(), Block())
 
@@ -309,7 +342,16 @@ blocks_dct = {1: [block1, True], 2: [block2, True], 3: [block3, True], 4: [block
               6: [block6, True], 7: [block7, True], 8: [block8, True], 9: [block9, True], 10: [block10, True],
               11: [block11, False], 12: [block12, False], 13: [block13, False], 14: [block14, False],
               15: [block15, False], 16: [block16, False], 17: [block17, False], 18: [block18, False],
-              19: [block19, False], 20: [block20, False]}
+              19: [block19, False], 20: [block20, False], 21: [block21, False], 22: [block22, False],
+              23: [block23, False],
+              24: [block24, False], 25: [block25, False], 26: [block26, False], 27: [block27, False],
+              28: [block28, False], 29: [block29, False], 30: [block30, False], }
+
+(gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gblock8, gblock9, gblock10) = (
+    GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(),
+    GhostBlock(), GhostBlock())
+
+gblocks_lst = [gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gblock8, gblock9, gblock10]
 
 character = Hero()
 camera = Camera()
@@ -322,6 +364,8 @@ def main():
     clock = pygame.time.Clock()
     dead = [False, 0, 0]
     anim_counter_rl = [0, 0, "right"]
+    score = 0
+    background = load_image("graphics/backgrounds/hell.png")
 
     for value in blocks_dct.values():
         if value[1] is True:
@@ -385,7 +429,17 @@ def main():
                     if value[1] is False:
                         value[1] = True
                         value[0].spawn()
+                        score += 1
                         break
+
+            if camera.count > 46:
+                camera.default()
+            elif camera.upFlag is True and camera.count <= 46:
+                camera.update()
+                for sprite in fallen_blocks:
+                    camera.apply(sprite)
+                for sprite in ghost_blocks:
+                    camera.apply(sprite)
 
             respawn = list()
 
@@ -396,16 +450,25 @@ def main():
                             and up[0].movement_flag is False):
                         respawn.append(value[0])
 
+            i = 0
+
             if len(respawn) == 10:
                 for value in blocks_dct.values():
                     if value[0] in respawn:
                         value[1] = False
+                        gblocks_lst[i].replace(value[0].rect.x, value[0].rect.y, value[0].rotate_angle)
+                        i += 1
                         value[0].invisible()
-                    camera.update()
-                for sprite in fallen_blocks:
-                    camera.apply(sprite)
+                    camera.upFlag = True
 
-            screen.fill((0, 0, 0))
+            screen.blit(background, (0, 0))
+
+            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                 , 20)
+            score_text = f.render(str(score), True,
+                                  (255, 255, 255))
+            screen.blit(score_text, (530, 20))
+
             all_sprites.update()
             all_sprites.draw(screen)
 
@@ -416,7 +479,7 @@ def main():
             dead[2] += 1
             dead[0] = True
 
-            screen.fill((0, 0, 0))
+            screen.blit(background, (0, 0))
             all_sprites.update()
             all_sprites.draw(screen)
 
@@ -434,6 +497,7 @@ def main():
                     value[0].spawn()
                     value[0].rect.y = 752
             character.rect.y = 650
+            score = 0
             character.image = character.right
 
             for event in pygame.event.get():
