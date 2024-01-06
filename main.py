@@ -12,12 +12,14 @@ running = True
 blocks = pygame.sprite.Group()
 fallen_blocks = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
+walls = pygame.sprite.Group()
 hero = pygame.sprite.Group()
 items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
 ghost_blocks = pygame.sprite.Group()
 
 possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+wall_counter = [0, 800]
 
 
 def load_image(name, colorkey=None):
@@ -111,7 +113,6 @@ class Hero(pygame.sprite.Sprite):
             self.rect.x += nx
             self.direction_x = nx
             self.moved = True
-            print(nx)
 
     def jump(self):
         self.jump_counter += 1
@@ -129,10 +130,12 @@ class Hero(pygame.sprite.Sprite):
                                               fallen_blocks) and self.rect.y + 64 != 800 and self.jump_flag[0] is False:
             self.rect.y += 3
             if self.falling_flag[0] is True:
-                if self.falling_flag[1] == "right" and 0 <= self.rect.x + 3 <= 800:
+                if self.falling_flag[1] == "right" and 48 <= self.rect.x + 3 <= 496:
                     self.rect.x += 3
-                elif self.falling_flag[1] == "left" and 0 <= self.rect.x - 3 <= 800:
+                    self.direction_x = 3
+                elif self.falling_flag[1] == "left" and 48 <= self.rect.x - 3 <= 496:
                     self.rect.x -= 3
+                    self.direction_x = -3
 
             if pygame.sprite.spritecollideany(self,
                                               fallen_blocks) or self.rect.midbottom[1] == 800:
@@ -149,13 +152,18 @@ class Hero(pygame.sprite.Sprite):
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
-            self.rect.x += 3
+            self.direction_x = 3
+            if 48 <= self.rect.x + 3 <= 496:
+                self.rect.x += 3
+                self.direction_x = 3
 
         elif self.jump_flag[0] is True and self.jump_flag[1] == "left" and self.tick_jump_counter != 10:
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
-            self.rect.x -= 3
+            if 48 <= self.rect.x - 3 <= 496:
+                self.rect.x -= 3
+                self.direction_x = -3
 
         elif self.tick_jump_counter == 10:
             self.tick_jump_counter = 1
@@ -166,14 +174,21 @@ class Hero(pygame.sprite.Sprite):
         if self.moved is True:
             for i in fallen_blocks:
                 while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 1:
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
                         self.rect.x -= self.direction_x
 
                     else:
                         break
             for i in blocks:
                 while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 1:
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
+            for i in walls:
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
                         self.rect.x -= self.direction_x
 
                     else:
@@ -188,8 +203,8 @@ class Hero(pygame.sprite.Sprite):
     def check_death(self):
         for i in blocks:
             if (pygame.sprite.collide_rect(self, i) and (
-                    i.rect.topleft[0] <= self.rect.left + self.direction_x <= i.rect.topright[0]
-                    or i.rect.topleft[0] <= self.rect.right + self.direction_x <= i.rect.topright[
+                    i.rect.topleft[0] <= self.rect.left <= i.rect.topright[0]
+                    or i.rect.topleft[0] <= self.rect.right <= i.rect.topright[
                         0])):
                 return True
             return False
@@ -200,7 +215,7 @@ class Camera:
         self.dx = 0
         self.dy = 0
         self.upFlag = False
-        self.count = 1
+        self.count = 0
 
     def apply(self, obj):
         obj.rect.x += self.dx
@@ -215,19 +230,34 @@ class Camera:
         self.count = 0
         self.upFlag = False
 
+    def death(self):
+        self.dx = 0
+        self.dy = 0
+        self.upFlag = False
+        self.count = 0
+
+
+background_y = -1600
+
 
 class Block(pygame.sprite.Sprite):
-    image_placedTitle = load_image("graphics/textures/falling_tile.png")
-    image_placedTitle = pygame.transform.scale(image_placedTitle, (48, 48))
-    image_fallingTitle = load_image("graphics/textures/placed_tile.png")
-    image_fallingTitle = pygame.transform.scale(image_fallingTitle, (48, 48))
+    grass_placedTitle = load_image("graphics/textures/grass/grass_fallen_tile.png")
+    grass_placedTitle = pygame.transform.scale(grass_placedTitle, (48, 48))
+    grass_fallingTitle = load_image("graphics/textures/grass/grass_falling_tile.png")
+    grass_fallingTitle = pygame.transform.scale(grass_fallingTitle, (48, 48))
+    dirt_placedTitle = load_image("graphics/textures/dirt/dirt_fallen_tile.png")
+    dirt_placedTitle = pygame.transform.scale(dirt_placedTitle, (48, 48))
+    space_fallingTitle = load_image("graphics/textures/space/space_falling_tile.png")
+    space_fallingTitle = pygame.transform.scale(space_fallingTitle, (48, 48))
+    space_placedTitle = load_image("graphics/textures/space/space_fallen_tile.png")
+    space_placedTitle = pygame.transform.scale(space_placedTitle, (48, 48))
 
     def __init__(self):
         super().__init__(all_sprites)
 
-        self.rotate_angle = random.randint(1, 4) * 90
+        self.rotate_angle = 0  # random.randint(1, 4) * 90
 
-        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
+        self.image = pygame.transform.rotate(self.grass_fallingTitle, self.rotate_angle)
 
         self.add(blocks)
 
@@ -239,29 +269,49 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = 900
 
     def update(self):
+        global background_y
+
         for i in fallen_blocks:
             if pygame.sprite.collide_rect(self, i):
                 self.add(fallen_blocks)
                 self.remove(blocks)
                 self.movement_flag = False
-                self.image = pygame.transform.rotate(self.image_placedTitle, self.rotate_angle)
+                if background_y < -1226:
+                    self.image = pygame.transform.rotate(self.grass_placedTitle, self.rotate_angle)
+                else:
+                    self.image = pygame.transform.rotate(self.space_placedTitle, self.rotate_angle)
 
         if self.movement_flag:
             if 0 <= self.rect.y + 48 < 800:
                 self.rect = self.rect.move(0, 2)
 
             elif self.rect.y + 48 == 800:
-                self.image = pygame.transform.rotate(self.image_placedTitle, self.rotate_angle)
+                if background_y < -1226:
+                    self.image = pygame.transform.rotate(self.grass_placedTitle, self.rotate_angle)
+                else:
+                    self.image = pygame.transform.rotate(self.space_placedTitle, self.rotate_angle)
                 self.add(fallen_blocks)
                 self.remove(blocks)
                 self.movement_flag = False
 
+        if background_y < -1226:
+            for value in blocks_dct.values():
+                if value[0].rect.y > self.rect.y and pygame.sprite.collide_rect(value[0], self):
+                    value[0].image = pygame.transform.rotate(self.dirt_placedTitle, self.rotate_angle)
+
+                elif value[0].rect.y < self.rect.y and pygame.sprite.collide_rect(value[0], self):
+                    self.image = pygame.transform.rotate(self.dirt_placedTitle, self.rotate_angle)
+
     def spawn(self):
-        global possibilities
+        global possibilities, background_y
 
-        self.rotate_angle = random.randint(1, 4) * 90
+        if background_y <= -1226:
+            self.rotate_angle = 0
+            self.image = pygame.transform.rotate(self.grass_fallingTitle, self.rotate_angle)
 
-        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
+        else:
+            self.rotate_angle = random.randint(1, 4) * 90
+            self.image = pygame.transform.rotate(self.space_fallingTitle, self.rotate_angle)
 
         self.rect = self.image.get_rect()
 
@@ -293,7 +343,7 @@ class Block(pygame.sprite.Sprite):
 
         self.rotate_angle = random.randint(1, 4) * 90
 
-        self.image = pygame.transform.rotate(self.image_fallingTitle, self.rotate_angle)
+        self.image = pygame.transform.rotate(self.grass_fallingTitle, self.rotate_angle)
 
         self.add(blocks)
 
@@ -306,13 +356,15 @@ class Block(pygame.sprite.Sprite):
 
 
 class GhostBlock(pygame.sprite.Sprite):
-    image = load_image("graphics/textures/placed_tile.png")
-    image = pygame.transform.scale(image, (48, 48))
+    dirt = load_image("graphics/textures/dirt/dirt_fallen_tile.png")
+    dirt = pygame.transform.scale(dirt, (48, 48))
+    space = load_image("graphics/textures/space/space_falling_tile.png")
+    space = pygame.transform.scale(space, (48, 48))
 
     def __init__(self):
         super().__init__(all_sprites)
 
-        self.image = pygame.transform.rotate(self.image, 0)
+        self.image = pygame.transform.rotate(self.dirt, 0)
 
         self.add(ghost_blocks)
 
@@ -321,10 +373,63 @@ class GhostBlock(pygame.sprite.Sprite):
 
         self.rect.y = 900
 
-    def replace(self, x, y, rotation):
+    def replace(self, x, y, rotation, image):
         self.rect.x, self.rect.y = x, y
-        self.image = pygame.transform.rotate(self.image, rotation)
+        self.image = pygame.transform.rotate(image, rotation)
 
+    def change_texture(self):
+        pass
+
+
+class Wall(pygame.sprite.Sprite):
+    grasswall = load_image("graphics/textures/dirt/dirt_wall.png")
+    grasswall = pygame.transform.scale(grasswall, (48, 48))
+    spacewall = load_image("graphics/textures/space/space_wall.png")
+    spacewall = pygame.transform.scale(spacewall, (48, 48))
+
+    def __init__(self):
+        global wall_counter
+
+        super().__init__(all_sprites)
+
+        self.add(walls)
+
+        if wall_counter[0] == 0:
+            self.angle = 270
+            self.image = pygame.transform.rotate(self.grasswall, self.angle)
+        else:
+            self.angle = 90
+            self.image = pygame.transform.rotate(self.grasswall, self.angle)
+
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+
+        wall_counter[1] -= 48
+        if wall_counter[1] < -48:
+            wall_counter[1] = 800
+            wall_counter[0] = 528
+        self.rect.y = wall_counter[1]
+        self.rect.x = wall_counter[0]
+
+    def update(self):
+        global background_y
+
+        if background_y >= -1226:
+            self.image = pygame.transform.rotate(self.spacewall, self.angle)
+
+
+(wall1, wall2, wall3, wall4, wall5, wall6, wall7, wall8, wall9, wall10, wall11, wall12, wall13, wall14,
+ wall15, wall16, wall17wall18, wall19, wall20, wall21, wall22, wall23, wall24, wall25, wall26, wall27,
+ wall28, wall29, wall30, wall31, wall32, wall33, wall34, wall35, wall36) = (Wall(), Wall(), Wall(), Wall(), Wall(),
+                                                                            Wall(), Wall(), Wall(),
+                                                                            Wall(), Wall(), Wall(), Wall(), Wall(),
+                                                                            Wall(),
+                                                                            Wall(), Wall(), Wall(), Wall(), Wall(),
+                                                                            Wall(), Wall(),
+                                                                            Wall(), Wall(), Wall(), Wall(),
+                                                                            Wall(), Wall(), Wall(), Wall(), Wall(),
+                                                                            Wall(), Wall(),
+                                                                            Wall(), Wall(), Wall())
 
 (block1, block2, block3, block4, block5, block6, block7, block8,
  block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21,
@@ -345,7 +450,7 @@ blocks_dct = {1: [block1, True], 2: [block2, True], 3: [block3, True], 4: [block
               19: [block19, False], 20: [block20, False], 21: [block21, False], 22: [block22, False],
               23: [block23, False],
               24: [block24, False], 25: [block25, False], 26: [block26, False], 27: [block27, False],
-              28: [block28, False], 29: [block29, False], 30: [block30, False], }
+              28: [block28, False], 29: [block29, False], 30: [block30, False]}
 
 (gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gblock8, gblock9, gblock10) = (
     GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(),
@@ -358,14 +463,14 @@ camera = Camera()
 
 
 def main():
-    global running, camera, character
+    global running, camera, character, background_y
 
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
     dead = [False, 0, 0]
     anim_counter_rl = [0, 0, "right"]
     score = 0
-    background = load_image("graphics/backgrounds/hell.png")
+    background = load_image("graphics/background.png")
 
     for value in blocks_dct.values():
         if value[1] is True:
@@ -374,6 +479,10 @@ def main():
 
     while running:
         if dead[0] is False:
+
+            # if character.check_death() or dead[0] is True:
+            #     dead[0] = True
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -418,11 +527,9 @@ def main():
                     elif event.key == pygame.K_w:
                         character.jump()
 
-            character.check_air()
-            character.check_ground()
-
-            if character.check_death() or dead[0] is True:
-                dead[0] = True
+            if not character.check_death() and not dead[0] is True:
+                character.check_air()
+                character.check_ground()
 
             if random.randint(0, 40) == 3:
                 for value in blocks_dct.values():
@@ -440,6 +547,8 @@ def main():
                     camera.apply(sprite)
                 for sprite in ghost_blocks:
                     camera.apply(sprite)
+                background_y += 1
+                print(background_y)
 
             respawn = list()
 
@@ -456,21 +565,21 @@ def main():
                 for value in blocks_dct.values():
                     if value[0] in respawn:
                         value[1] = False
-                        gblocks_lst[i].replace(value[0].rect.x, value[0].rect.y, value[0].rotate_angle)
+                        gblocks_lst[i].replace(value[0].rect.x, value[0].rect.y, value[0].rotate_angle, value[0].image)
                         i += 1
                         value[0].invisible()
                     camera.upFlag = True
 
-            screen.blit(background, (0, 0))
+            screen.blit(background, (0, background_y))
+
+            all_sprites.update()
+            all_sprites.draw(screen)
 
             f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                  , 20)
             score_text = f.render(str(score), True,
                                   (255, 255, 255))
             screen.blit(score_text, (530, 20))
-
-            all_sprites.update()
-            all_sprites.draw(screen)
 
         elif dead[0] is True and dead[1] <= 3:
             if dead[2] % 10 == 0:
@@ -479,10 +588,9 @@ def main():
             dead[2] += 1
             dead[0] = True
 
-            screen.blit(background, (0, 0))
+            screen.blit(background, (0, background_y))
             all_sprites.update()
             all_sprites.draw(screen)
-
 
         else:
             for c, value in enumerate(blocks_dct.values()):
@@ -500,18 +608,21 @@ def main():
             score = 0
             character.image = character.right
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        dead = [False, 0, 0]
+            background_y = -1600
 
             f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                  , 36)
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
             screen.blit(deadtext, (150, 400))
+            camera.death()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        dead = [False, 0, 0]
 
         clock.tick(60)
         pygame.display.flip()
