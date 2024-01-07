@@ -240,7 +240,6 @@ class Camera:
 background_y = -1600
 
 
-# aasda
 class Block(pygame.sprite.Sprite):
     grass_placedTitle = load_image("graphics/textures/grass/grass_fallen_tile.png")
     grass_placedTitle = pygame.transform.scale(grass_placedTitle, (48, 48))
