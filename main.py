@@ -255,7 +255,7 @@ class Block(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprites)
 
-        self.rotate_angle = 0  # random.randint(1, 4) * 90
+        self.rotate_angle = 0
 
         self.image = pygame.transform.rotate(self.grass_fallingTitle, self.rotate_angle)
 
