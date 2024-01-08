@@ -7,7 +7,7 @@ import random
 pygame.init()
 pygame.display.set_caption('Jump to space')
 size = width, height = 576, 800
-running = True
+running = True  # qq
 
 blocks = pygame.sprite.Group()
 fallen_blocks = pygame.sprite.Group()
