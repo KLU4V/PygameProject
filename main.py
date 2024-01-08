@@ -174,21 +174,21 @@ class Hero(pygame.sprite.Sprite):
         if self.moved is True:
             for i in fallen_blocks:
                 while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
                         self.rect.x -= self.direction_x
 
                     else:
                         break
             for i in blocks:
                 while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
                         self.rect.x -= self.direction_x
 
                     else:
                         break
             for i in walls:
                 while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 3:
+                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
                         self.rect.x -= self.direction_x
 
                     else:
@@ -272,11 +272,11 @@ class Block(pygame.sprite.Sprite):
         global background_y
 
         for i in fallen_blocks:
-            if pygame.sprite.collide_rect(self, i):
+            if pygame.sprite.collide_rect(self, i) and self.movement_flag is True:
                 self.add(fallen_blocks)
                 self.remove(blocks)
                 self.movement_flag = False
-                if background_y < -1226:
+                if self.rotate_angle == 0:
                     self.image = pygame.transform.rotate(self.grass_placedTitle, self.rotate_angle)
                 else:
                     self.image = pygame.transform.rotate(self.space_placedTitle, self.rotate_angle)
@@ -294,7 +294,7 @@ class Block(pygame.sprite.Sprite):
                 self.remove(blocks)
                 self.movement_flag = False
 
-        if background_y < -1226:
+        if self.rotate_angle == 0:
             for value in blocks_dct.values():
                 if value[0].rect.y > self.rect.y and pygame.sprite.collide_rect(value[0], self):
                     value[0].image = pygame.transform.rotate(self.dirt_placedTitle, self.rotate_angle)
@@ -558,6 +558,11 @@ def main():
                             and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
                             and up[0].movement_flag is False):
                         respawn.append(value[0])
+                        if camera.upFlag is False:
+                            if value[0].rect.y != 753:
+                                value[0].rect.y = 753
+                            if up[0].rect.y != 706:
+                                up[0].rect.y = 706
 
             i = 0
 
