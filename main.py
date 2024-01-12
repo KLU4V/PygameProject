@@ -487,6 +487,193 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
+                if pygame.key.get_pressed()[K_ESCAPE]:
+                    paused = True
+                    brightness_low = load_image("graphics/brightness_low.png")
+                    brightness_low = pygame.transform.scale(brightness_low, (576, 800))
+                    brightness_low = brightness_low.convert()
+                    brightness_low.set_alpha(200)
+                    brightness_high = load_image("graphics/brightness_high.png")
+                    brightness_high = pygame.transform.scale(brightness_high, (112, 95))
+                    brightness_high = brightness_high.convert()
+                    brightness_high.set_alpha(50)
+                    brightness_high1 = pygame.transform.scale(brightness_high, (40, 40))
+                    start_active = load_image("graphics/textures/pause_menu/start/start_active.png")
+                    start_inactive = load_image("graphics/textures/pause_menu/start/start_inactive.png")
+                    leave_active = load_image("graphics/textures/pause_menu/leave/leave_active.png")
+                    leave_inactive = load_image("graphics/textures/pause_menu/leave/leave_inactive.png")
+                    store_active = load_image("graphics/textures/pause_menu/store/store_active.png")
+                    store_inactive = load_image("graphics/textures/pause_menu/store/store_inactive.png")
+                    wardrobe_active = load_image("graphics/textures/pause_menu/wardrobe/wardrobe_active.png")
+                    wardrobe_inactive = load_image("graphics/textures/pause_menu/wardrobe/wardrobe_inactive.png")
+                    select_active = load_image("graphics/textures/pause_menu/wardrobe/select_active.png")
+                    select_inactive = load_image("graphics/textures/pause_menu/wardrobe/select_inactive.png")
+                    select_blocked = load_image("graphics/textures/pause_menu/wardrobe/select_blocked.png")
+                    back = load_image("graphics/textures/pause_menu/wardrobe/back.png")
+                    left = load_image("graphics/animations/default/default_left.png")
+                    left = pygame.transform.scale(left, (115, 200))
+                    is_start_active = False
+                    is_wardrobe_active = False
+                    is_store_active = False
+                    is_leave_active = False
+                    wardrobe_open = False
+                    store_open = False
+                    wr_is1 = False
+                    wr_is2 = False
+                    wr_is3 = False
+                    wr_is4 = False
+                    wr_is5 = False
+                    wr_is6 = False
+                    wr_is_back = False
+                    wr_is_select = 'inactive'
+                    st_is_back = False
+                    while paused:
+                        screen.blit(background, (0, background_y))
+                        all_sprites.draw(screen)
+                        screen.blit(brightness_low, (0, 0))
+                        if wardrobe_open:
+                            screen.blit(back, (73, 260))
+                            if wr_is_back:
+                                screen.blit(brightness_high1, (75, 260))
+                            if wr_is1:
+                                screen.blit(brightness_high, (275, 300))
+                            if wr_is2:
+                                screen.blit(brightness_high, (275, 396))
+                            if wr_is3:
+                                screen.blit(brightness_high, (275, 490))
+                            if wr_is4:
+                                screen.blit(brightness_high, (387, 300))
+                            if wr_is5:
+                                screen.blit(brightness_high, (387, 396))
+                            if wr_is6:
+                                screen.blit(brightness_high, (387, 490))
+                            if wr_is_select == 'active':
+                                screen.blit(select_active, (74, 500))
+                            elif wr_is_select == 'inactive':
+                                screen.blit(select_inactive, (74, 500))
+                            else:
+                                screen.blit(select_blocked, (74, 500))
+                            screen.blit(left, (116, 300))
+                            pygame.draw.rect(screen, (0, 0, 0), (275, 300, 224, 285), 2)
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    quit()
+                                if event.type == pygame.MOUSEMOTION:
+                                    if wr_is_select != 'blocked':
+                                        if 76 <= event.pos[0] <= 276 and 500 <= event.pos[1] <= 600:
+                                            wr_is_select = 'active'
+                                        else:
+                                            wr_is_select = 'inactive'
+                                    if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 395:
+                                        wr_is1 = True
+                                    else:
+                                        wr_is1 = False
+                                    if 275 <= event.pos[0] <= 387 and 396 <= event.pos[1] <= 490:
+                                        wr_is2 = True
+                                    else:
+                                        wr_is2 = False
+                                    if 275 <= event.pos[0] <= 387 and 491 <= event.pos[1] <= 585:
+                                        wr_is3 = True
+                                    else:
+                                        wr_is3 = False
+                                    if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 395:
+                                        wr_is4 = True
+                                    else:
+                                        wr_is4 = False
+                                    if 388 <= event.pos[0] <= 499 and 396 <= event.pos[1] <= 490:
+                                        wr_is5 = True
+                                    else:
+                                        wr_is5 = False
+                                    if 388 <= event.pos[0] <= 499 and 491 <= event.pos[1] <= 585:
+                                        wr_is6 = True
+                                    else:
+                                        wr_is6 = False
+                                    if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
+                                        wr_is_back = True
+                                    else:
+                                        wr_is_back = False
+                                if event.type == pygame.MOUSEBUTTONUP:
+                                    if 76 <= event.pos[0] <= 276 and 500 <= event.pos[1] <= 600:
+                                        wr_is_select = 'blocked'
+                                    if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
+                                        wardrobe_open = False
+
+                        elif store_open:
+                            screen.blit(back, (73, 260))
+                            if st_is_back:
+                               screen.blit(brightness_high1, (75, 260))
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    quit()
+                                if event.type == pygame.MOUSEMOTION:
+                                    if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
+                                        st_is_back = True
+                                    else:
+                                        st_is_back = False
+                                if event.type == pygame.MOUSEBUTTONUP:
+                                    if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
+                                        store_open = False
+
+                            # screen.blit(select_inactive, (50, 500))
+                        else:
+                            if is_start_active:
+                                screen.blit(start_active, (51, 350))
+
+                            else:
+                                screen.blit(start_inactive, (51, 350))
+                            if is_wardrobe_active:
+                                screen.blit(wardrobe_active, (176, 350))
+                            else:
+                                screen.blit(wardrobe_inactive, (176, 350))
+                            if is_store_active:
+                                screen.blit(store_active, (301, 350))
+                            else:
+                                screen.blit(store_inactive, (301, 350))
+                            if is_leave_active:
+                                screen.blit(leave_active, (427, 350))
+                            else:
+                                screen.blit(leave_inactive, (427, 350))
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    quit()
+                                if event.type == pygame.MOUSEMOTION:
+                                    if 51 <= event.pos[0] <= 151 and 350 <= event.pos[1] <= 450:
+                                        is_start_active = True
+                                    else:
+                                        is_start_active = not True
+                                    if 176 <= event.pos[0] <= 276 and 350 <= event.pos[1] <= 450:
+                                        is_wardrobe_active = True
+                                    else:
+                                        is_wardrobe_active = not True
+                                    if 301 <= event.pos[0] <= 401 and 350 <= event.pos[1] <= 450:
+                                        is_store_active = True
+                                    else:
+                                        is_store_active = not True
+                                    if 427 <= event.pos[0] <= 527 and 350 <= event.pos[1] <= 450:
+                                        is_leave_active = True
+                                    else:
+                                        is_leave_active = not True
+                                if event.type == pygame.MOUSEBUTTONUP:
+                                    if 51 <= event.pos[0] <= 151 and 350 <= event.pos[1] <= 450 and event.button == 1:
+                                        paused = False
+                                    elif 176 <= event.pos[0] <= 276 and 350 <= event.pos[
+                                        1] <= 450 and event.button == 1:
+                                        wardrobe_open = True
+                                    elif 301 <= event.pos[0] <= 401 and 350 <= event.pos[
+                                        1] <= 450 and event.button == 1:
+                                        store_open = True
+                                    elif 427 <= event.pos[0] <= 527 and 350 <= event.pos[
+                                        1] <= 450 and event.button == 1:
+                                        pass
+
+                        if pygame.key.get_pressed()[K_RETURN]:
+                            paused = False
+
+                        pygame.display.update()
+
                 if not (pygame.key.get_pressed()[K_d] or pygame.key.get_pressed()[K_a]):
                     if anim_counter_rl[2] == "right":
                         character.image = character.right
@@ -575,8 +762,8 @@ def main():
             all_sprites.update()
             all_sprites.draw(screen)
 
-            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
-                                 , 20)
+            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
+                                 20)
             score_text = f.render(str(score), True,
                                   (255, 255, 255))
             screen.blit(score_text, (530, 20))
@@ -610,8 +797,8 @@ def main():
 
             background_y = -1600
 
-            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
-                                 , 36)
+            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
+                                 36)
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
             screen.blit(deadtext, (150, 400))
@@ -623,6 +810,24 @@ def main():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         dead = [False, 0, 0]
+
+        # def pause():
+        #     paused = True
+        #     brightness_low = load_image("graphics/brightness_low.png")
+        #     brightness_low = pygame.transform.scale(brightness_low, (576, 800))
+        #     brightness_low = brightness_low.convert()
+        #     brightness_low.set_alpha(200)
+        #     while paused:
+        #         for event in pygame.event.get():
+        #             if event.type == pygame.QUIT:
+        #                 pygame.quit()
+        #                 quit()
+        #         screen.blit(brightness_low, (0, 0))
+        #         all_sprites.draw(screen)
+        #         if pygame.key.get_pressed()[K_RETURN]:
+        #             paused = False
+        #
+        #         pygame.display.update()
 
         clock.tick(60)
         pygame.display.flip()
