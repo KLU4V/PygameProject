@@ -453,7 +453,7 @@ class Hero(pygame.sprite.Sprite):
     def check_air(self):
         if not pygame.sprite.spritecollideany(self, fallen_blocks) and self.rect.y + 64 != 800 and \
                 self.jump_flag[0] is False:
-            self.rect.y += 6
+            self.rect.y += 10
             if self.falling_flag[0] is True:
                 if self.falling_flag[1] == "right" and 48 <= self.rect.x + 3 <= 496:
                     self.rect.x += 3
@@ -463,10 +463,9 @@ class Hero(pygame.sprite.Sprite):
                     self.direction_x = -3
 
             if pygame.sprite.spritecollideany(self, fallen_blocks) or self.rect.midbottom[1] == 800:
-                self.rect.y -= 6
+                self.rect.y -= 10
                 self.jump_counter -= 1
                 self.falling_flag = [False, "stand"]
-
 
         elif self.jump_flag[0] is True and self.jump_flag[1] == "stand" and self.tick_jump_counter != 10:
             self.rect.y -= self.jump_flag[2]
