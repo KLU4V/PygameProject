@@ -510,7 +510,18 @@ def main():
                     select_inactive = load_image("graphics/textures/pause_menu/wardrobe/select_inactive.png")
                     select_blocked = load_image("graphics/textures/pause_menu/wardrobe/select_blocked.png")
                     back = load_image("graphics/textures/pause_menu/wardrobe/back.png")
+                    buy_active = load_image("graphics/textures/pause_menu/store/buy_active.png")
+                    buy_inactive = load_image("graphics/textures/pause_menu/store/buy_inactive.png")
+                    buy_blocked = load_image("graphics/textures/pause_menu/store/buy_blocked.png")
                     left = load_image("graphics/animations/default/default_left.png")
+                    last_active = load_image("graphics/textures/pause_menu/store/last_active.png")
+                    last_active = pygame.transform.scale(last_active, (30, 30))
+                    next_active = load_image("graphics/textures/pause_menu/store/next_active.png")
+                    next_active = pygame.transform.scale(next_active, (30, 30))
+                    last_inactive = load_image("graphics/textures/pause_menu/store/last_inactive.png")
+                    last_inactive = pygame.transform.scale(last_inactive, (30, 30))
+                    next_inactive = load_image("graphics/textures/pause_menu/store/next_inactive.png")
+                    next_inactive = pygame.transform.scale(next_inactive, (30, 30))
                     left = pygame.transform.scale(left, (115, 200))
                     is_start_active = False
                     is_wardrobe_active = False
@@ -527,6 +538,9 @@ def main():
                     wr_is_back = False
                     wr_is_select = 'inactive'
                     st_is_back = False
+                    st_is_purchase = 'inactive'
+                    st_is_next = False
+                    st_is_last = False
                     while paused:
                         screen.blit(background, (0, background_y))
                         all_sprites.draw(screen)
@@ -603,11 +617,39 @@ def main():
                             screen.blit(back, (73, 260))
                             if st_is_back:
                                screen.blit(brightness_high1, (75, 260))
+                            if st_is_purchase == 'active':
+                                screen.blit(buy_active, (188, 500))
+                            elif st_is_purchase == 'inactive':
+                                screen.blit(buy_inactive, (188, 500))
+                            else:
+                                screen.blit(buy_blocked, (188, 500))
+                            if st_is_last:
+                                screen.blit(last_active, (155, 385))
+                            else:
+                                screen.blit(last_inactive, (155, 385))
+                            if st_is_next:
+                                screen.blit(next_active, (391, 385))
+                            else:
+                                screen.blit(next_inactive, (391, 385))
+
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     quit()
                                 if event.type == pygame.MOUSEMOTION:
+                                    if st_is_purchase != 'blocked':
+                                        if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
+                                            st_is_purchase = 'active'
+                                        else:
+                                            st_is_purchase = 'inactive'
+                                    if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
+                                        st_is_last = True
+                                    else:
+                                        st_is_last = False
+                                    if 391 <= event.pos[0] <= 421 and 385 <= event.pos[1] <= 415:
+                                        st_is_next = True
+                                    else:
+                                        st_is_next = False
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         st_is_back = True
                                     else:
@@ -615,6 +657,8 @@ def main():
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         store_open = False
+                                    if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
+                                        st_is_purchase = 'blocked'
 
                             # screen.blit(select_inactive, (50, 500))
                         else:
@@ -815,24 +859,6 @@ def main():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         dead = [False, 0, 0]
-
-        # def pause():
-        #     paused = True
-        #     brightness_low = load_image("graphics/brightness_low.png")
-        #     brightness_low = pygame.transform.scale(brightness_low, (576, 800))
-        #     brightness_low = brightness_low.convert()
-        #     brightness_low.set_alpha(200)
-        #     while paused:
-        #         for event in pygame.event.get():
-        #             if event.type == pygame.QUIT:
-        #                 pygame.quit()
-        #                 quit()
-        #         screen.blit(brightness_low, (0, 0))
-        #         all_sprites.draw(screen)
-        #         if pygame.key.get_pressed()[K_RETURN]:
-        #             paused = False
-        #
-        #         pygame.display.update()
 
         clock.tick(60)
         pygame.display.flip()
