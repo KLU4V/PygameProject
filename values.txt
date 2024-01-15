@@ -1,2 +1,2 @@
- coins=
- skins=
+ c=123123
+ s=rm dc cr fn

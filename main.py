@@ -4,6 +4,7 @@ import sys
 from pygame.locals import *
 import random
 
+global select_rm, select_dc, select_cr, select_fn
 pygame.init()
 pygame.display.set_caption('Jump to space')
 size = width, height = 576, 800
@@ -32,6 +33,10 @@ def load_image(name, colorkey=None):
 
 
 class Hero(pygame.sprite.Sprite):
+    select_rm = True
+    select_dc = False
+    select_cr = False
+    select_fn = False
     right = load_image("graphics/animations/redman/default/default_right.png")
     right = pygame.transform.scale(right, (32, 56))
     left = load_image("graphics/animations/redman/default/default_left.png")
@@ -70,7 +75,7 @@ class Hero(pygame.sprite.Sprite):
         death[i] = pygame.transform.scale(death[i], (32, 56))
 
         blink = [load_image("graphics/animations/redman/blink/eyes.png"),
-             load_image("graphics/animations/redman/blink/void.png")]
+                 load_image("graphics/animations/redman/blink/void.png")]
 
     for i in range(len(blink)):
         blink[i] = pygame.transform.scale(blink[i], (32, 56))
@@ -464,7 +469,7 @@ camera = Camera()
 
 
 def main():
-    global running, camera, character, background_y
+    global running, camera, character, background_y, select_rm, select_dc, select_cr, select_fn
 
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
@@ -495,7 +500,7 @@ def main():
                     brightness_low = brightness_low.convert()
                     brightness_low.set_alpha(200)
                     brightness_high = load_image("graphics/brightness_high.png")
-                    brightness_high = pygame.transform.scale(brightness_high, (112, 95))
+                    brightness_high = pygame.transform.scale(brightness_high, (112, 142))
                     brightness_high = brightness_high.convert()
                     brightness_high.set_alpha(50)
                     brightness_high1 = pygame.transform.scale(brightness_high, (40, 40))
@@ -514,7 +519,7 @@ def main():
                     buy_active = load_image("graphics/textures/pause_menu/store/buy_active.png")
                     buy_inactive = load_image("graphics/textures/pause_menu/store/buy_inactive.png")
                     buy_blocked = load_image("graphics/textures/pause_menu/store/buy_blocked.png")
-                    left = load_image("graphics/animations/redman/default/default_left.png")
+                    left_rm = load_image("graphics/animations/redman/default/default_left.png")
                     last_active = load_image("graphics/textures/pause_menu/store/last_active.png")
                     last_active = pygame.transform.scale(last_active, (30, 30))
                     next_active = load_image("graphics/textures/pause_menu/store/next_active.png")
@@ -523,7 +528,21 @@ def main():
                     last_inactive = pygame.transform.scale(last_inactive, (30, 30))
                     next_inactive = load_image("graphics/textures/pause_menu/store/next_inactive.png")
                     next_inactive = pygame.transform.scale(next_inactive, (30, 30))
-                    left = pygame.transform.scale(left, (115, 200))
+                    left_dc = load_image('graphics/animations/ducky/idle/left1.png')
+                    left_fn = load_image('graphics/animations/finn/idle/left1.png')
+                    left_cr = load_image('graphics/animations/Crabby/01-Idle/Idle 04.png')
+                    left_dc = pygame.transform.scale(left_dc, (200, 165))
+                    left_rm = pygame.transform.scale(left_rm, (115, 200))
+                    left_fn = pygame.transform.scale(left_fn, (147, 200))
+                    left_cr = pygame.transform.scale(left_cr, (200, 130))
+                    left_dc1 = pygame.transform.scale(left_dc, (100, 82))
+                    left_rm1 = pygame.transform.scale(left_rm, (57, 100))
+                    left_fn1 = pygame.transform.scale(left_fn, (73, 100))
+                    left_cr1 = pygame.transform.scale(left_cr, (100, 65))
+                    values_file = open('values.txt', mode='r+', encoding='utf8')
+                    values = values_file.readlines()
+                    coins = int(values[0][3:].strip())
+                    skins = values[1][3:].split()
                     is_start_active = False
                     is_wardrobe_active = False
                     is_store_active = False
@@ -537,39 +556,52 @@ def main():
                     wr_is5 = False
                     wr_is6 = False
                     wr_is_back = False
-                    wr_is_select = 'inactive'
+                    wr_is_select = 'blocked'
+                    wr_wh_skn = 'rm'
                     st_is_back = False
                     st_is_purchase = 'inactive'
                     st_is_next = False
                     st_is_last = False
+                    select_dc = False
+                    select_rm = True
+                    select_cr = False
+                    select_fn = False
+                    count = 0
                     while paused:
                         screen.blit(background, (0, background_y))
                         all_sprites.draw(screen)
                         screen.blit(brightness_low, (0, 0))
                         if wardrobe_open:
                             screen.blit(back, (73, 260))
+                            screen.blit(left_rm1, (302, 321))
+                            screen.blit(left_cr1, (281, 479))
+                            screen.blit(left_fn1, (406, 321))
+                            screen.blit(left_dc1, (393, 472))
                             if wr_is_back:
                                 screen.blit(brightness_high1, (75, 260))
                             if wr_is1:
                                 screen.blit(brightness_high, (275, 300))
                             if wr_is2:
-                                screen.blit(brightness_high, (275, 396))
+                                screen.blit(brightness_high, (275, 442))
                             if wr_is3:
-                                screen.blit(brightness_high, (275, 490))
-                            if wr_is4:
                                 screen.blit(brightness_high, (387, 300))
-                            if wr_is5:
-                                screen.blit(brightness_high, (387, 396))
-                            if wr_is6:
-                                screen.blit(brightness_high, (387, 490))
+                            if wr_is4:
+                                screen.blit(brightness_high, (387, 442))
                             if wr_is_select == 'active':
                                 screen.blit(select_active, (74, 500))
                             elif wr_is_select == 'inactive':
                                 screen.blit(select_inactive, (74, 500))
                             else:
                                 screen.blit(select_blocked, (74, 500))
-                            screen.blit(left, (116, 300))
-                            pygame.draw.rect(screen, (0, 0, 0), (275, 300, 224, 285), 2)
+                            if wr_wh_skn == 'rm':
+                                screen.blit(left_rm, (116, 300))
+                            elif wr_wh_skn == 'dc':
+                                screen.blit(left_dc, (75, 335))
+                            elif wr_wh_skn == 'fn':
+                                screen.blit(left_fn, (101, 300))
+                            else:
+                                screen.blit(left_cr, (75, 370))
+                            pygame.draw.rect(screen, (0, 0, 0), (275, 300, 224, 284), 2)
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
@@ -580,30 +612,22 @@ def main():
                                             wr_is_select = 'active'
                                         else:
                                             wr_is_select = 'inactive'
-                                    if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 395:
+                                    if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 442:
                                         wr_is1 = True
                                     else:
                                         wr_is1 = False
-                                    if 275 <= event.pos[0] <= 387 and 396 <= event.pos[1] <= 490:
+                                    if 275 <= event.pos[0] <= 387 and 443 <= event.pos[1] <= 584:
                                         wr_is2 = True
                                     else:
                                         wr_is2 = False
-                                    if 275 <= event.pos[0] <= 387 and 491 <= event.pos[1] <= 585:
+                                    if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 442:
                                         wr_is3 = True
                                     else:
                                         wr_is3 = False
-                                    if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 395:
+                                    if 388 <= event.pos[0] <= 499 and 443 <= event.pos[1] <= 584:
                                         wr_is4 = True
                                     else:
                                         wr_is4 = False
-                                    if 388 <= event.pos[0] <= 499 and 396 <= event.pos[1] <= 490:
-                                        wr_is5 = True
-                                    else:
-                                        wr_is5 = False
-                                    if 388 <= event.pos[0] <= 499 and 491 <= event.pos[1] <= 585:
-                                        wr_is6 = True
-                                    else:
-                                        wr_is6 = False
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         wr_is_back = True
                                     else:
@@ -611,13 +635,57 @@ def main():
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 76 <= event.pos[0] <= 276 and 500 <= event.pos[1] <= 600:
                                         wr_is_select = 'blocked'
+                                        if wr_wh_skn == 'rm':
+                                            select_rm = True
+                                            select_dc = False
+                                            select_cr = False
+                                            select_fn = False
+                                        elif wr_wh_skn == 'dc':
+                                            select_dc = True
+                                            select_cr = False
+                                            select_rm = False
+                                            select_fn = False
+                                        elif wr_wh_skn == 'fn':
+                                            select_fn = True
+                                            select_dc = False
+                                            select_rm = False
+                                            select_cr = False
+                                        else:
+                                            select_cr = True
+                                            select_dc = False
+                                            select_rm = False
+                                            select_fn = False
+                                    if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 442:
+                                        wr_wh_skn = 'rm'
+                                        if not select_rm:
+                                            wr_is_select = 'inactive'
+                                        else:
+                                            wr_is_select = 'blocked'
+                                    if 275 <= event.pos[0] <= 387 and 443 <= event.pos[1] <= 584:
+                                        wr_wh_skn = 'cr'
+                                        if not select_cr:
+                                            wr_is_select = 'inactive'
+                                        else:
+                                            wr_is_select = 'blocked'
+                                    if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 442:
+                                        wr_wh_skn = 'fn'
+                                        if not select_fn:
+                                            wr_is_select = 'inactive'
+                                        else:
+                                            wr_is_select = 'blocked'
+                                    if 388 <= event.pos[0] <= 499 and 443 <= event.pos[1] <= 584:
+                                        wr_wh_skn = 'dc'
+                                        if not select_dc:
+                                            wr_is_select = 'inactive'
+                                        else:
+                                            wr_is_select = 'blocked'
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         wardrobe_open = False
 
                         elif store_open:
                             screen.blit(back, (73, 260))
                             if st_is_back:
-                               screen.blit(brightness_high1, (75, 260))
+                                screen.blit(brightness_high1, (75, 260))
                             if st_is_purchase == 'active':
                                 screen.blit(buy_active, (188, 500))
                             elif st_is_purchase == 'inactive':
@@ -632,6 +700,14 @@ def main():
                                 screen.blit(next_active, (391, 385))
                             else:
                                 screen.blit(next_inactive, (391, 385))
+                            if count % 4 == 0:
+                                screen.blit(left_rm, (230, 300))
+                            elif count % 4 == 1:
+                                screen.blit(left_fn, (215, 300))
+                            elif count % 4 == 2:
+                                screen.blit(left_cr, (188, 370))
+                            else:
+                                screen.blit(left_dc, (188, 335))
 
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
@@ -660,8 +736,10 @@ def main():
                                         store_open = False
                                     if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
                                         st_is_purchase = 'blocked'
-
-                            # screen.blit(select_inactive, (50, 500))
+                                    if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
+                                        count -= 1
+                                    if 391 <= event.pos[0] <= 421 and 385 <= event.pos[1] <= 415:
+                                        count += 1
                         else:
                             if is_start_active:
                                 screen.blit(start_active, (51, 350))
@@ -704,11 +782,11 @@ def main():
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 51 <= event.pos[0] <= 151 and 350 <= event.pos[1] <= 450 and event.button == 1:
                                         paused = False
-                                    elif 176 <= event.pos[0] <= 276 and 350 <= event.pos[
-                                        1] <= 450 and event.button == 1:
+                                    elif (176 <= event.pos[0] <= 276 and 350 <= event.pos[1]
+                                          <= 450 and event.button == 1):
                                         wardrobe_open = True
-                                    elif 301 <= event.pos[0] <= 401 and 350 <= event.pos[
-                                        1] <= 450 and event.button == 1:
+                                    elif (301 <= event.pos[0] <= 401 and 350 <= event.pos[1]
+                                          <= 450 and event.button == 1):
                                         store_open = True
                                     elif 427 <= event.pos[0] <= 527 and 350 <= event.pos[
                                         1] <= 450 and event.button == 1:
