@@ -32,57 +32,57 @@ def load_image(name, colorkey=None):
 
 
 class Hero(pygame.sprite.Sprite):
-    right = load_image("graphics/animations/default/default_right.png")
+    right = load_image("graphics/animations/redman/default/default_right.png")
     right = pygame.transform.scale(right, (32, 56))
-    left = load_image("graphics/animations/default/default_left.png")
+    left = load_image("graphics/animations/redman/default/default_left.png")
     left = pygame.transform.scale(left, (32, 56))
 
-    run_left = [load_image("graphics/animations/left/1.png"),
-                load_image("graphics/animations/left/2.png"),
-                load_image("graphics/animations/left/3.png"),
-                load_image("graphics/animations/left/4.png"),
-                load_image("graphics/animations/left/5.png"),
-                load_image("graphics/animations/left/6.png"),
-                load_image("graphics/animations/left/7.png"),
-                load_image("graphics/animations/left/8.png")]
+    run_left = [load_image("graphics/animations/redman/left/1.png"),
+                load_image("graphics/animations/redman/left/2.png"),
+                load_image("graphics/animations/redman/left/3.png"),
+                load_image("graphics/animations/redman/left/4.png"),
+                load_image("graphics/animations/redman/left/5.png"),
+                load_image("graphics/animations/redman/left/6.png"),
+                load_image("graphics/animations/redman/left/7.png"),
+                load_image("graphics/animations/redman/left/8.png")]
 
     for i in range(len(run_left)):
         run_left[i] = pygame.transform.scale(run_left[i], (32, 56))
 
-    run_right = [load_image("graphics/animations/right/1.png"),
-                 load_image("graphics/animations/right/2.png"),
-                 load_image("graphics/animations/right/3.png"),
-                 load_image("graphics/animations/right/4.png"),
-                 load_image("graphics/animations/right/5.png"),
-                 load_image("graphics/animations/right/6.png"),
-                 load_image("graphics/animations/right/7.png"),
-                 load_image("graphics/animations/right/8.png")]
+    run_right = [load_image("graphics/animations/redman/right/1.png"),
+                 load_image("graphics/animations/redman/right/2.png"),
+                 load_image("graphics/animations/redman/right/3.png"),
+                 load_image("graphics/animations/redman/right/4.png"),
+                 load_image("graphics/animations/redman/right/5.png"),
+                 load_image("graphics/animations/redman/right/6.png"),
+                 load_image("graphics/animations/redman/right/7.png"),
+                 load_image("graphics/animations/redman/right/8.png")]
 
     for i in range(len(run_right)):
         run_right[i] = pygame.transform.scale(run_right[i], (32, 56))
 
-    death = [load_image("graphics/animations/death/1.png"),
-             load_image("graphics/animations/death/2.png"),
-             load_image("graphics/animations/death/3.png"),
-             load_image("graphics/animations/death/4.png")]
+    death = [load_image("graphics/animations/redman/death/1.png"),
+             load_image("graphics/animations/redman/death/2.png"),
+             load_image("graphics/animations/redman/death/3.png"),
+             load_image("graphics/animations/redman/death/4.png")]
 
     for i in range(len(death)):
         death[i] = pygame.transform.scale(death[i], (32, 56))
 
-    blink = [load_image("graphics/animations/blink/eyes.png"),
-             load_image("graphics/animations/blink/void.png")]
+        blink = [load_image("graphics/animations/redman/blink/eyes.png"),
+             load_image("graphics/animations/redman/blink/void.png")]
 
     for i in range(len(blink)):
         blink[i] = pygame.transform.scale(blink[i], (32, 56))
 
-    jumpAn = [load_image("graphics/animations/jump/1.png"),
-              load_image("graphics/animations/jump/2.png"),
-              load_image("graphics/animations/jump/3.png"),
-              load_image("graphics/animations/jump/4.png"),
-              load_image("graphics/animations/jump/5.png"),
-              load_image("graphics/animations/jump/6.png"),
-              load_image("graphics/animations/jump/7.png"),
-              load_image("graphics/animations/jump/8.png")]
+    jumpAn = [load_image("graphics/animations/redman/jump/1.png"),
+              load_image("graphics/animations/redman/jump/2.png"),
+              load_image("graphics/animations/redman/jump/3.png"),
+              load_image("graphics/animations/redman/jump/4.png"),
+              load_image("graphics/animations/redman/jump/5.png"),
+              load_image("graphics/animations/redman/jump/6.png"),
+              load_image("graphics/animations/redman/jump/7.png"),
+              load_image("graphics/animations/redman/jump/8.png")]
 
     for i in range(len(jumpAn)):
         jumpAn[i] = pygame.transform.scale(jumpAn[i], (32, 56))
@@ -514,7 +514,7 @@ def main():
                     buy_active = load_image("graphics/textures/pause_menu/store/buy_active.png")
                     buy_inactive = load_image("graphics/textures/pause_menu/store/buy_inactive.png")
                     buy_blocked = load_image("graphics/textures/pause_menu/store/buy_blocked.png")
-                    left = load_image("graphics/animations/default/default_left.png")
+                    left = load_image("graphics/animations/redman/default/default_left.png")
                     last_active = load_image("graphics/textures/pause_menu/store/last_active.png")
                     last_active = pygame.transform.scale(last_active, (30, 30))
                     next_active = load_image("graphics/textures/pause_menu/store/next_active.png")
