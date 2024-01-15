@@ -109,14 +109,14 @@ class Hero(pygame.sprite.Sprite):
         self.rect.y = 600
 
     def run(self, nx):
-        if 0 < self.rect.x + nx < 576:
+        if 0 < self.rect.x + nx < 576 and self.moved is not True:
             self.rect.x += nx
             self.direction_x = nx
             self.moved = True
 
     def jump(self):
         self.jump_counter += 1
-        if self.jump_counter <= 1:
+        if -1 < self.jump_counter <= 1 and self.jump_flag[1] is not True:
             if self.moved is True:
                 if self.direction_x > 0:
                     self.jump_flag = [True, "right", 10]
@@ -138,10 +138,11 @@ class Hero(pygame.sprite.Sprite):
                     self.direction_x = -3
 
             if pygame.sprite.spritecollideany(self,
-                                              fallen_blocks) or self.rect.midbottom[1] == 800:
+                                              fallen_blocks):
                 self.rect.y -= 3
-                self.jump_counter -= 1
                 self.falling_flag = [False, "stand"]
+                if self.jump_counter > -1:
+                    self.jump_counter -= 1
 
         elif self.jump_flag[0] is True and self.jump_flag[1] == "stand" and self.tick_jump_counter != 10:
             self.rect.y -= self.jump_flag[2]
@@ -201,13 +202,13 @@ class Hero(pygame.sprite.Sprite):
             self.rect.y -= 1
 
     def check_death(self):
-        for i in blocks:
-            if (pygame.sprite.collide_rect(self, i) and (
-                    i.rect.topleft[0] <= self.rect.left <= i.rect.topright[0]
-                    or i.rect.topleft[0] <= self.rect.right <= i.rect.topright[
-                        0])):
-                return True
-            return False
+        # for i in blocks:
+        #     if ((i.rect.topleft[0] <= self.rect.left <= i.rect.topright[0]
+        #             or i.rect.topleft[0] <= self.rect.right <= i.rect.topright[0])
+        #             and pygame.sprite.collide_rect(self, i) and i.rect.midbottom[1] <= self.rect.midtop[1]):
+        if pygame.sprite.spritecollideany(self, blocks):
+            return True
+        return False
 
 
 class Camera:
@@ -373,9 +374,9 @@ class GhostBlock(pygame.sprite.Sprite):
 
         self.rect.y = 900
 
-    def replace(self, x, y, rotation, image):
+    def replace(self, x, y, image):
         self.rect.x, self.rect.y = x, y
-        self.image = pygame.transform.rotate(image, rotation)
+        self.image = image
 
     def change_texture(self):
         pass
@@ -480,8 +481,8 @@ def main():
     while running:
         if dead[0] is False:
 
-            # if character.check_death() or dead[0] is True:
-            #     dead[0] = True
+            if character.check_death() or dead[0] is True:
+                dead[0] = True
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -778,8 +779,8 @@ def main():
                     camera.apply(sprite)
                 for sprite in ghost_blocks:
                     camera.apply(sprite)
-                background_y += 1
-                print(background_y)
+                if background_y <= -2:
+                    background_y += 1
 
             respawn = list()
 
@@ -801,7 +802,7 @@ def main():
                 for value in blocks_dct.values():
                     if value[0] in respawn:
                         value[1] = False
-                        gblocks_lst[i].replace(value[0].rect.x, value[0].rect.y, value[0].rotate_angle, value[0].image)
+                        gblocks_lst[i].replace(value[0].rect.x, value[0].rect.y, value[0].image)
                         i += 1
                         value[0].invisible()
                     camera.upFlag = True
@@ -811,11 +812,16 @@ def main():
             all_sprites.update()
             all_sprites.draw(screen)
 
-            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
-                                 20)
+            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                 , 20)
             score_text = f.render(str(score), True,
                                   (255, 255, 255))
-            screen.blit(score_text, (530, 20))
+            f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                  , 22)
+            bolding = f2.render(str(score), True,
+                                (0, 0, 0))
+            screen.blit(bolding, (270, 20))
+            screen.blit(score_text, (270, 20))
 
         elif dead[0] is True and dead[1] <= 3:
             if dead[2] % 10 == 0:
@@ -851,6 +857,7 @@ def main():
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
             screen.blit(deadtext, (150, 400))
+            score = 0
             camera.death()
 
             for event in pygame.event.get():
