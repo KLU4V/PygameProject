@@ -19,6 +19,10 @@ items = pygame.sprite.Group()
 particles = pygame.sprite.Group()
 ghost_blocks = pygame.sprite.Group()
 
+select_rm = True
+select_fn = False
+select_dc = False
+select_cr = False
 possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 wall_counter = [0, 800]
 
@@ -33,64 +37,147 @@ def load_image(name, colorkey=None):
 
 
 class Hero(pygame.sprite.Sprite):
-    select_rm = True
-    select_dc = False
-    select_cr = False
-    select_fn = False
-    right = load_image("graphics/animations/redman/default/default_right.png")
-    right = pygame.transform.scale(right, (32, 56))
-    left = load_image("graphics/animations/redman/default/default_left.png")
-    left = pygame.transform.scale(left, (32, 56))
+    if select_rm:
+        right = load_image("graphics/animations/redman/default/default_right.png")
+        right = pygame.transform.scale(right, (32, 56))
+        left = load_image("graphics/animations/redman/default/default_left.png")
+        left = pygame.transform.scale(left, (32, 56))
 
-    run_left = [load_image("graphics/animations/redman/left/1.png"),
-                load_image("graphics/animations/redman/left/2.png"),
-                load_image("graphics/animations/redman/left/3.png"),
-                load_image("graphics/animations/redman/left/4.png"),
-                load_image("graphics/animations/redman/left/5.png"),
-                load_image("graphics/animations/redman/left/6.png"),
-                load_image("graphics/animations/redman/left/7.png"),
-                load_image("graphics/animations/redman/left/8.png")]
+        run_left = [load_image("graphics/animations/redman/left/1.png"),
+                    load_image("graphics/animations/redman/left/2.png"),
+                    load_image("graphics/animations/redman/left/3.png"),
+                    load_image("graphics/animations/redman/left/4.png"),
+                    load_image("graphics/animations/redman/left/5.png"),
+                    load_image("graphics/animations/redman/left/6.png"),
+                    load_image("graphics/animations/redman/left/7.png"),
+                    load_image("graphics/animations/redman/left/8.png")]
 
-    for i in range(len(run_left)):
-        run_left[i] = pygame.transform.scale(run_left[i], (32, 56))
+        for i in range(len(run_left)):
+            run_left[i] = pygame.transform.scale(run_left[i], (32, 56))
 
-    run_right = [load_image("graphics/animations/redman/right/1.png"),
-                 load_image("graphics/animations/redman/right/2.png"),
-                 load_image("graphics/animations/redman/right/3.png"),
-                 load_image("graphics/animations/redman/right/4.png"),
-                 load_image("graphics/animations/redman/right/5.png"),
-                 load_image("graphics/animations/redman/right/6.png"),
-                 load_image("graphics/animations/redman/right/7.png"),
-                 load_image("graphics/animations/redman/right/8.png")]
+        run_right = [load_image("graphics/animations/redman/right/1.png"),
+                     load_image("graphics/animations/redman/right/2.png"),
+                     load_image("graphics/animations/redman/right/3.png"),
+                     load_image("graphics/animations/redman/right/4.png"),
+                     load_image("graphics/animations/redman/right/5.png"),
+                     load_image("graphics/animations/redman/right/6.png"),
+                     load_image("graphics/animations/redman/right/7.png"),
+                     load_image("graphics/animations/redman/right/8.png")]
 
-    for i in range(len(run_right)):
-        run_right[i] = pygame.transform.scale(run_right[i], (32, 56))
+        for i in range(len(run_right)):
+            run_right[i] = pygame.transform.scale(run_right[i], (32, 56))
 
-    death = [load_image("graphics/animations/redman/death/1.png"),
-             load_image("graphics/animations/redman/death/2.png"),
-             load_image("graphics/animations/redman/death/3.png"),
-             load_image("graphics/animations/redman/death/4.png")]
+        death = [load_image("graphics/animations/redman/death/1.png"),
+                 load_image("graphics/animations/redman/death/2.png"),
+                 load_image("graphics/animations/redman/death/3.png"),
+                 load_image("graphics/animations/redman/death/4.png")]
 
-    for i in range(len(death)):
-        death[i] = pygame.transform.scale(death[i], (32, 56))
+        for i in range(len(death)):
+            death[i] = pygame.transform.scale(death[i], (32, 56))
 
-        blink = [load_image("graphics/animations/redman/blink/eyes.png"),
-                 load_image("graphics/animations/redman/blink/void.png")]
+            blink = [load_image("graphics/animations/redman/blink/eyes.png"),
+                     load_image("graphics/animations/redman/blink/void.png")]
 
-    for i in range(len(blink)):
-        blink[i] = pygame.transform.scale(blink[i], (32, 56))
+        for i in range(len(blink)):
+            blink[i] = pygame.transform.scale(blink[i], (32, 56))
 
-    jumpAn = [load_image("graphics/animations/redman/jump/1.png"),
-              load_image("graphics/animations/redman/jump/2.png"),
-              load_image("graphics/animations/redman/jump/3.png"),
-              load_image("graphics/animations/redman/jump/4.png"),
-              load_image("graphics/animations/redman/jump/5.png"),
-              load_image("graphics/animations/redman/jump/6.png"),
-              load_image("graphics/animations/redman/jump/7.png"),
-              load_image("graphics/animations/redman/jump/8.png")]
+        jumpAn = [load_image("graphics/animations/redman/jump/1.png"),
+                  load_image("graphics/animations/redman/jump/2.png"),
+                  load_image("graphics/animations/redman/jump/3.png"),
+                  load_image("graphics/animations/redman/jump/4.png"),
+                  load_image("graphics/animations/redman/jump/5.png"),
+                  load_image("graphics/animations/redman/jump/6.png"),
+                  load_image("graphics/animations/redman/jump/7.png"),
+                  load_image("graphics/animations/redman/jump/8.png")]
 
-    for i in range(len(jumpAn)):
-        jumpAn[i] = pygame.transform.scale(jumpAn[i], (32, 56))
+        for i in range(len(jumpAn)):
+            jumpAn[i] = pygame.transform.scale(jumpAn[i], (32, 56))
+    elif select_dc:
+        right = load_image("graphics/animations/ducky/idle/right1.png")
+        right = pygame.transform.scale(right, (46, 38))
+        left = load_image("graphics/animations/ducky/idle/left1.png")
+        left = pygame.transform.scale(left, (46, 38))
+
+        run_left = [load_image("graphics/animations/ducky/run/left1.png"),
+                    load_image("graphics/animations/ducky/run/left2.png"),
+                    load_image("graphics/animations/ducky/run/left3.png"),
+                    load_image("graphics/animations/ducky/run/left4.png"), ]
+
+        for i in range(len(run_left)):
+            run_left[i] = pygame.transform.scale(run_left[i], (48, 38))
+
+        run_right = [load_image("graphics/animations/ducky/run/right1.png"),
+                     load_image("graphics/animations/ducky/run/right2.png"),
+                     load_image("graphics/animations/ducky/run/right3.png"),
+                     load_image("graphics/animations/ducky/run/right4.png"), ]
+
+        for i in range(len(run_right)):
+            run_right[i] = pygame.transform.scale(run_right[i], (48, 38))
+
+        death = [load_image("graphics/animations/ducky/death.png")]
+
+        for i in range(len(death)):
+            death[i] = pygame.transform.scale(death[i], (51, 14))
+
+            blink = [load_image("graphics/animations/redman/blink/eyes.png"),
+                     load_image("graphics/animations/redman/blink/void.png")]
+
+        for i in range(len(blink)):
+            blink[i] = pygame.transform.scale(blink[i], (32, 56))
+
+        jumpAn = [load_image("graphics/animations/ducky/jump/right1.png"),
+                  load_image("graphics/animations/ducky/jump/right2.png"),
+                  load_image("graphics/animations/ducky/jump/right3.png"),
+                  load_image("graphics/animations/ducky/jump/right4.png"), ]
+
+        for i in range(len(jumpAn)):
+            jumpAn[i] = pygame.transform.scale(jumpAn[i], (48, 40))
+
+
+    elif select_fn:
+        right = load_image("graphics/animations/finn/idle/right1.png")
+        right = pygame.transform.scale(right, (35, 48))
+        left = load_image("graphics/animations/finn/idle/left1.png")
+        left = pygame.transform.scale(left, (35, 48))
+
+        run_left = [load_image("graphics/animations/finn/run/left1.png"),
+                    load_image("graphics/animations/finn/run/left2.png"),
+                    load_image("graphics/animations/finn/run/left3.png"),
+                    load_image("graphics/animations/finn/run/left4.png"),
+                    load_image("graphics/animations/finn/run/left5.png"),
+                    load_image("graphics/animations/finn/run/left6.png")]
+
+        for i in range(len(run_left)):
+            run_left[i] = pygame.transform.scale(run_left[i], (35, 48))
+
+        run_right = [load_image("graphics/animations/finn/run/right1.png"),
+                     load_image("graphics/animations/finn/run/right2.png"),
+                     load_image("graphics/animations/finn/run/right3.png"),
+                     load_image("graphics/animations/finn/run/right4.png"),
+                     load_image("graphics/animations/finn/run/right5.png"),
+                     load_image("graphics/animations/finn/run/right6.png")]
+
+        for i in range(len(run_right)):
+            run_right[i] = pygame.transform.scale(run_right[i], (35, 48))
+
+        death = [load_image("graphics/animations/finn/idle/right1.png")]
+
+        for i in range(len(death)):
+            death[i] = pygame.transform.scale(death[i], (52, 24))
+
+            blink = [load_image("graphics/animations/redman/blink/eyes.png"),
+                     load_image("graphics/animations/redman/blink/void.png")]
+
+        for i in range(len(blink)):
+            blink[i] = pygame.transform.scale(blink[i], (32, 56))
+
+        jumpAn = [load_image("graphics/animations/ducky/jump/right1.png"),
+                  load_image("graphics/animations/ducky/jump/right2.png"),
+                  load_image("graphics/animations/ducky/jump/right3.png"),
+                  load_image("graphics/animations/ducky/jump/right4.png"), ]
+
+        for i in range(len(jumpAn)):
+            jumpAn[i] = pygame.transform.scale(jumpAn[i], (48, 40))
 
     def __init__(self):
         super().__init__(all_sprites)
@@ -541,8 +628,10 @@ def main():
                     left_cr1 = pygame.transform.scale(left_cr, (100, 65))
                     values_file = open('values.txt', mode='r+', encoding='utf8')
                     values = values_file.readlines()
-                    coins = int(values[0][3:].strip())
-                    skins = values[1][3:].split()
+                    coins = int(values[0][2:].strip())
+                    skins = values[1][2:].split()
+                    # print(coins)
+                    # print(skins)
                     is_start_active = False
                     is_wardrobe_active = False
                     is_store_active = False
@@ -557,15 +646,18 @@ def main():
                     wr_is6 = False
                     wr_is_back = False
                     wr_is_select = 'blocked'
-                    wr_wh_skn = 'rm'
+                    if select_rm:
+                        wr_wh_skn = 'rm'
+                    elif select_dc:
+                        wr_wh_skn = 'dc'
+                    elif select_cr:
+                        wr_wh_skn = 'cr'
+                    else:
+                        wr_wh_skn = 'fn'
                     st_is_back = False
                     st_is_purchase = 'inactive'
                     st_is_next = False
                     st_is_last = False
-                    select_dc = False
-                    select_rm = True
-                    select_cr = False
-                    select_fn = False
                     count = 0
                     while paused:
                         screen.blit(background, (0, background_y))
@@ -573,35 +665,46 @@ def main():
                         screen.blit(brightness_low, (0, 0))
                         if wardrobe_open:
                             screen.blit(back, (73, 260))
-                            screen.blit(left_rm1, (302, 321))
-                            screen.blit(left_cr1, (281, 479))
-                            screen.blit(left_fn1, (406, 321))
-                            screen.blit(left_dc1, (393, 472))
+                            if 'rm' in skins:
+                                screen.blit(left_rm1, (302, 321))
+                            if 'cr' in skins:
+                                screen.blit(left_cr1, (281, 479))
+                            if 'fn' in skins:
+                                screen.blit(left_fn1, (406, 321))
+                            if 'dc' in skins:
+                                screen.blit(left_dc1, (393, 472))
                             if wr_is_back:
                                 screen.blit(brightness_high1, (75, 260))
-                            if wr_is1:
-                                screen.blit(brightness_high, (275, 300))
-                            if wr_is2:
-                                screen.blit(brightness_high, (275, 442))
-                            if wr_is3:
-                                screen.blit(brightness_high, (387, 300))
-                            if wr_is4:
-                                screen.blit(brightness_high, (387, 442))
+                            if 'rm' in skins:
+                                if wr_is1:
+                                    screen.blit(brightness_high, (275, 300))
+                            if 'cr' in skins:
+                                if wr_is2:
+                                    screen.blit(brightness_high, (275, 442))
+                            if 'fn' in skins:
+                                if wr_is3:
+                                    screen.blit(brightness_high, (387, 300))
+                            if 'dc' in skins:
+                                if wr_is4:
+                                    screen.blit(brightness_high, (387, 442))
                             if wr_is_select == 'active':
                                 screen.blit(select_active, (74, 500))
                             elif wr_is_select == 'inactive':
                                 screen.blit(select_inactive, (74, 500))
-                            else:
+                            elif wr_is_select == 'blocked':
                                 screen.blit(select_blocked, (74, 500))
-                            if wr_wh_skn == 'rm':
-                                screen.blit(left_rm, (116, 300))
-                            elif wr_wh_skn == 'dc':
-                                screen.blit(left_dc, (75, 335))
-                            elif wr_wh_skn == 'fn':
-                                screen.blit(left_fn, (101, 300))
-                            else:
-                                screen.blit(left_cr, (75, 370))
-                            pygame.draw.rect(screen, (0, 0, 0), (275, 300, 224, 284), 2)
+                            if wr_wh_skn in skins:
+                                if wr_wh_skn == 'rm':
+                                    screen.blit(left_rm, (116, 300))
+                                elif wr_wh_skn == 'dc':
+                                    screen.blit(left_dc, (75, 335))
+                                elif wr_wh_skn == 'fn':
+                                    screen.blit(left_fn, (101, 300))
+                                else:
+                                    screen.blit(left_cr, (75, 370))
+                            pygame.draw.rect(screen, (50, 50, 50), (275, 300, 224, 284), 2)
+                            pygame.draw.line(screen, (50, 50, 50), (387, 300), (387, 584))
+                            pygame.draw.line(screen, (50, 50, 50), (275, 442), (499, 442))
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
@@ -656,29 +759,34 @@ def main():
                                             select_rm = False
                                             select_fn = False
                                     if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 442:
-                                        wr_wh_skn = 'rm'
-                                        if not select_rm:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'rm' in skins:
+                                            wr_wh_skn = 'rm'
+                                            if not select_rm:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 275 <= event.pos[0] <= 387 and 443 <= event.pos[1] <= 584:
-                                        wr_wh_skn = 'cr'
-                                        if not select_cr:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'cr' in skins:
+                                            wr_wh_skn = 'cr'
+                                            if not select_cr:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 442:
-                                        wr_wh_skn = 'fn'
-                                        if not select_fn:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'fn' in skins:
+                                            wr_wh_skn = 'fn'
+                                            if not select_fn:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 388 <= event.pos[0] <= 499 and 443 <= event.pos[1] <= 584:
-                                        wr_wh_skn = 'dc'
-                                        if not select_dc:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        print(select_dc)
+                                        if 'dc' in skins:
+                                            wr_wh_skn = 'dc'
+                                            if not select_dc:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         wardrobe_open = False
 
@@ -702,12 +810,20 @@ def main():
                                 screen.blit(next_inactive, (391, 385))
                             if count % 4 == 0:
                                 screen.blit(left_rm, (230, 300))
+                                if 'rm' in skins:
+                                    st_is_purchase = 'blocked'
                             elif count % 4 == 1:
                                 screen.blit(left_fn, (215, 300))
+                                if 'fn' in skins:
+                                    st_is_purchase = 'blocked'
                             elif count % 4 == 2:
                                 screen.blit(left_cr, (188, 370))
+                                if 'cr' in skins:
+                                    st_is_purchase = 'blocked'
                             else:
                                 screen.blit(left_dc, (188, 335))
+                                if 'dc' in skins:
+                                    st_is_purchase = 'blocked'
 
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
@@ -735,10 +851,50 @@ def main():
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         store_open = False
                                     if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
-                                        st_is_purchase = 'blocked'
+                                        if st_is_purchase != 'blocked':
+                                            if count % 4 == 0:
+                                                st_is_purchase = 'blocked'
+                                            elif count % 4 == 1:
+                                                if coins > 99:
+                                                    coins -= 100
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('fn')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}')
+                                            elif count % 4 == 2:
+                                                if coins > 499:
+                                                    coins -= 500
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('cr')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}')
+                                            else:
+                                                if coins > 999:
+                                                    coins -= 1000
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('dc')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}')
                                     if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
                                         count -= 1
+                                        st_is_purchase = 'inactive'
                                     if 391 <= event.pos[0] <= 421 and 385 <= event.pos[1] <= 415:
+                                        st_is_purchase = 'inactive'
                                         count += 1
                         else:
                             if is_start_active:
@@ -809,23 +965,48 @@ def main():
                     character.run(-4)
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "left"
-
-                    if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
-                        character.image = character.run_left[anim_counter_rl[0]]
-                        anim_counter_rl[0] += 1
-                    elif anim_counter_rl[0] >= 8:
-                        anim_counter_rl[0] = 0
+                    if select_rm:
+                        if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_left[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 8:
+                            anim_counter_rl[0] = 0
+                    elif select_dc:
+                        if anim_counter_rl[0] <= 3 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_left[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 4:
+                            anim_counter_rl[0] = 0
+                    elif select_fn:
+                        if anim_counter_rl[0] <= 5 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_left[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 6:
+                            anim_counter_rl[0] = 0
 
                 if pygame.key.get_pressed()[K_d]:
                     character.run(4)
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "right"
 
-                    if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
-                        character.image = character.run_right[anim_counter_rl[0]]
-                        anim_counter_rl[0] += 1
-                    elif anim_counter_rl[0] >= 8:
-                        anim_counter_rl[0] = 0
+                    if select_rm:
+                        if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_right[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 8:
+                            anim_counter_rl[0] = 0
+                    elif select_dc:
+                        if anim_counter_rl[0] <= 3 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_right[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 4:
+                            anim_counter_rl[0] = 0
+                    elif select_fn:
+                        if anim_counter_rl[0] <= 5 and anim_counter_rl[1] % 4 == 0:
+                            character.image = character.run_right[anim_counter_rl[0]]
+                            anim_counter_rl[0] += 1
+                        elif anim_counter_rl[0] >= 6:
+                            anim_counter_rl[0] = 0
 
                 if pygame.key.get_pressed()[K_s]:
                     character.lower()
@@ -864,8 +1045,9 @@ def main():
 
             for value in blocks_dct.values():
                 for up in blocks_dct.values():
-                    if (value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758
-                            and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
+                    if (
+                            value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758 > up[
+                        0].rect.centery and pygame.sprite.collide_rect(value[0], up[0])
                             and up[0].movement_flag is False):
                         respawn.append(value[0])
                         if camera.upFlag is False:
@@ -902,11 +1084,18 @@ def main():
             screen.blit(score_text, (270, 20))
 
         elif dead[0] is True and dead[1] <= 3:
-            if dead[2] % 10 == 0:
-                character.image = character.death[dead[1]]
-                dead[1] += 1
-            dead[2] += 1
-            dead[0] = True
+            if select_rm:
+                if dead[2] % 10 == 0:
+                    character.image = character.death[dead[1]]
+                    dead[1] += 1
+                dead[2] += 1
+                dead[0] = True
+            elif select_dc:
+                if dead[2] % 10 == 0:
+                    character.image = character.death[0]
+                    dead[1] += 1
+                dead[2] += 1
+                dead[0] = True
 
             screen.blit(background, (0, background_y))
             all_sprites.update()

@@ -1,2 +1,2 @@
- c=123123
- s=rm dc cr fn
+c=601
+s=rm dc
