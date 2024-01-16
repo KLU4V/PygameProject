@@ -466,10 +466,11 @@ gblocks_lst = [gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gb
 
 character = Hero()
 camera = Camera()
+tracks = ['sound/tracks/soundtrack1.mp3', 'sound/tracks/soundtrack2.mp3']
 
 
 def main():
-    global running, camera, character, background_y, select_rm, select_dc, select_cr, select_fn
+    global running, camera, character, background_y, select_rm, select_dc, select_cr, select_fn, tracks
 
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
@@ -477,6 +478,15 @@ def main():
     anim_counter_rl = [0, 0, "right"]
     score = 0
     background = load_image("graphics/background.png")
+    death_sound = pygame.mixer.Sound('sound/misc sounds/death.ogg')
+    steps_dirt = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Grass 1.ogg'), False, 0]
+    steps_stone = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Cement 12.ogg'), False, 0]
+    pygame.mixer.init()
+    stopped_music = pygame.USEREVENT + 1
+    pygame.mixer.music.set_endevent(stopped_music)
+    pygame.mixer.music.set_volume(0.09)
+    pygame.mixer.music.load(tracks[0])
+    pygame.mixer.music.play(-1)
 
     for value in blocks_dct.values():
         if value[1] is True:
@@ -484,6 +494,13 @@ def main():
             value[0].rect.y = 752
 
     while running:
+        if background_y >= -1226:
+            if steps_stone[1] is True:
+                steps_stone[2] += 1
+        else:
+            if steps_dirt[1] is True:
+                steps_dirt[2] += 1
+
         if dead[0] is False:
 
             if character.check_death() or dead[0] is True:
@@ -804,6 +821,9 @@ def main():
                     else:
                         character.image = character.left
                         anim_counter_rl = [0, 0, "left"]
+                    steps_dirt[0].stop()
+                    steps_dirt[2] = 0
+                    steps_dirt[1] = False
 
                 if pygame.key.get_pressed()[K_a]:
                     character.run(-4)
@@ -816,6 +836,17 @@ def main():
                     elif anim_counter_rl[0] >= 8:
                         anim_counter_rl[0] = 0
 
+                    if background_y >= -1226:
+                        pass
+                    else:
+                        if steps_dirt[1] is False:
+                            steps_dirt[0].play()
+                            steps_dirt[1] = True
+                        else:
+                            if steps_dirt[2] >= 300:
+                                steps_dirt[0].play()
+                                steps_dirt[2] = 0
+
                 if pygame.key.get_pressed()[K_d]:
                     character.run(4)
                     anim_counter_rl[1] += 1
@@ -826,6 +857,23 @@ def main():
                         anim_counter_rl[0] += 1
                     elif anim_counter_rl[0] >= 8:
                         anim_counter_rl[0] = 0
+
+                    if background_y >= -1226:
+                        if steps_stone[1] is False:
+                            steps_stone[0].play()
+                            steps_stone[1] = True
+                        else:
+                            if steps_stone[2] >= 300:
+                                steps_stone[0].play()
+                                steps_stone[2] = 0
+                    else:
+                        if steps_dirt[1] is False:
+                            steps_dirt[0].play()
+                            steps_dirt[1] = True
+                        else:
+                            if steps_dirt[2] >= 300:
+                                steps_dirt[0].play()
+                                steps_dirt[2] = 0
 
                 if pygame.key.get_pressed()[K_s]:
                     character.lower()
@@ -912,6 +960,10 @@ def main():
             all_sprites.update()
             all_sprites.draw(screen)
 
+            death_sound.play()
+            steps_dirt[0].stop()
+            steps_stone[0].stop()
+
         else:
             for c, value in enumerate(blocks_dct.values()):
                 value[0].default()
@@ -925,7 +977,6 @@ def main():
                     value[0].spawn()
                     value[0].rect.y = 752
             character.rect.y = 650
-            score = 0
             character.image = character.right
 
             background_y = -1600
