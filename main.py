@@ -32,71 +32,58 @@ def load_image(name, colorkey=None):
     return image
 
 
+def default_change(n):
+    with open('values.txt', 'r', encoding='utf8') as file:
+        old_data = list()
+        for i in file.readlines():
+            old_data.append(i)
+    old_data[-1] = f'n={n}'
+    with open('values.txt', 'w', encoding='utf8') as file:
+        file.write(''.join(old_data))
+
+
 class Hero(pygame.sprite.Sprite):
     select_rm = True
     select_dc = False
     select_cr = False
     select_fn = False
-    right = load_image("graphics/animations/redman/default/default_right.png")
-    right = pygame.transform.scale(right, (32, 56))
-    left = load_image("graphics/animations/redman/default/default_left.png")
-    left = pygame.transform.scale(left, (32, 56))
 
-    run_left = [load_image("graphics/animations/redman/left/1.png"),
-                load_image("graphics/animations/redman/left/2.png"),
-                load_image("graphics/animations/redman/left/3.png"),
-                load_image("graphics/animations/redman/left/4.png"),
-                load_image("graphics/animations/redman/left/5.png"),
-                load_image("graphics/animations/redman/left/6.png"),
-                load_image("graphics/animations/redman/left/7.png"),
-                load_image("graphics/animations/redman/left/8.png")]
+    default_right, default_left = '', ''
 
-    for i in range(len(run_left)):
-        run_left[i] = pygame.transform.scale(run_left[i], (32, 56))
-
-    run_right = [load_image("graphics/animations/redman/right/1.png"),
-                 load_image("graphics/animations/redman/right/2.png"),
-                 load_image("graphics/animations/redman/right/3.png"),
-                 load_image("graphics/animations/redman/right/4.png"),
-                 load_image("graphics/animations/redman/right/5.png"),
-                 load_image("graphics/animations/redman/right/6.png"),
-                 load_image("graphics/animations/redman/right/7.png"),
-                 load_image("graphics/animations/redman/right/8.png")]
-
-    for i in range(len(run_right)):
-        run_right[i] = pygame.transform.scale(run_right[i], (32, 56))
-
-    death = [load_image("graphics/animations/redman/death/1.png"),
-             load_image("graphics/animations/redman/death/2.png"),
-             load_image("graphics/animations/redman/death/3.png"),
-             load_image("graphics/animations/redman/death/4.png")]
-
-    for i in range(len(death)):
-        death[i] = pygame.transform.scale(death[i], (32, 56))
-
-        blink = [load_image("graphics/animations/redman/blink/eyes.png"),
-                 load_image("graphics/animations/redman/blink/void.png")]
-
-    for i in range(len(blink)):
-        blink[i] = pygame.transform.scale(blink[i], (32, 56))
-
-    jumpAn = [load_image("graphics/animations/redman/jump/1.png"),
-              load_image("graphics/animations/redman/jump/2.png"),
-              load_image("graphics/animations/redman/jump/3.png"),
-              load_image("graphics/animations/redman/jump/4.png"),
-              load_image("graphics/animations/redman/jump/5.png"),
-              load_image("graphics/animations/redman/jump/6.png"),
-              load_image("graphics/animations/redman/jump/7.png"),
-              load_image("graphics/animations/redman/jump/8.png")]
-
-    for i in range(len(jumpAn)):
-        jumpAn[i] = pygame.transform.scale(jumpAn[i], (32, 56))
+    run_left, run_right = list(), list()
+    death, blink, jumpAn = list(), list(), list()
 
     def __init__(self):
         super().__init__(all_sprites)
 
+        with open('values.txt', 'r', encoding='utf8') as file:
+            for i in file.readlines():
+                if 'n=' in i:
+                    n = int(list(i)[-1])
+
+        persona = ['redman', 'finn', 'ducky', 'Crabby'][n]
+        character_sizes = {'redman': (32, 56), 'finn': (35, 48), 'ducky': (46, 38), 'Crabby': (46, 38)}
+
+        for f in os.listdir(f'graphics/animations/{persona}/default'):
+            if 'left' in f'graphics/animations/{persona}/default/' + f:
+                self.default_left = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
+                                                           character_sizes[persona])
+
+            else:
+                self.default_right = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
+                                                            character_sizes[persona])
+
+        for f in os.listdir(f'graphics/animations/{persona}/run'):
+            if 'left' in f'graphics/animations/{persona}/run/' + f:
+                self.run_left.append(pygame.transform.scale(load_image(f'graphics/animations/{persona}/run/' + f),
+                                                            character_sizes[persona]))
+
+            else:
+                self.run_right.append(pygame.transform.scale(load_image(f'graphics/animations/{persona}/run/' + f),
+                                                             character_sizes[persona]))
+
         self.add(hero)
-        self.image = self.right
+        self.image = self.default_right
 
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
@@ -129,6 +116,39 @@ class Hero(pygame.sprite.Sprite):
                     self.jump_flag = [True, "left", 10]
             else:
                 self.jump_flag = [True, "stand", 10]
+
+    def change_character(self, n):
+        persona = ['redman', 'finn', 'ducky', 'Crabby'][n]
+        character_sizes = {'redman': (32, 56), 'finn': (35, 48), 'ducky': (46, 38), 'Crabby': (46, 38)}
+        self.default_left, self.default_right = '', ''
+        self.run_left, self.run_right = list(), list()
+
+        prev_x = self.rect.x
+
+        for f in os.listdir(f'graphics/animations/{persona}/default'):
+            if 'left' in f'graphics/animations/{persona}/default/' + f:
+                self.default_left = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
+                                                           character_sizes[persona])
+
+            else:
+                self.default_right = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
+                                                            character_sizes[persona])
+
+        for f in os.listdir(f'graphics/animations/{persona}/run'):
+            if 'left' in f'graphics/animations/{persona}/run/' + f:
+                self.run_left.append(pygame.transform.scale(load_image(f'graphics/animations/{persona}/run/' + f),
+                                                            character_sizes[persona]))
+
+            else:
+                self.run_right.append(pygame.transform.scale(load_image(f'graphics/animations/{persona}/run/' + f),
+                                                             character_sizes[persona]))
+
+        self.image = self.default_right
+
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = prev_x
+        self.rect.y = 600
 
     def check_air(self):
         if not pygame.sprite.spritecollideany(self,
@@ -477,16 +497,23 @@ def main():
     dead = [False, 0, 0]
     anim_counter_rl = [0, 0, "right"]
     score = 0
+
     background = load_image("graphics/background.png")
     death_sound = pygame.mixer.Sound('sound/misc sounds/death.ogg')
     steps_dirt = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Grass 1.ogg'), False, 0]
     steps_stone = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Cement 12.ogg'), False, 0]
+
     pygame.mixer.init()
     stopped_music = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(stopped_music)
     pygame.mixer.music.set_volume(0.09)
     pygame.mixer.music.load(tracks[0])
     pygame.mixer.music.play(-1)
+
+    with open('values.txt', 'r', encoding='utf8') as file:
+        for i in file.readlines():
+            if 'n=' in i:
+                n = int(list(i)[-1])
 
     for value in blocks_dct.values():
         if value[1] is True:
@@ -545,9 +572,9 @@ def main():
                     last_inactive = pygame.transform.scale(last_inactive, (30, 30))
                     next_inactive = load_image("graphics/textures/pause_menu/store/next_inactive.png")
                     next_inactive = pygame.transform.scale(next_inactive, (30, 30))
-                    left_dc = load_image('graphics/animations/ducky/idle/left1.png')
-                    left_fn = load_image('graphics/animations/finn/idle/left1.png')
-                    left_cr = load_image('graphics/animations/Crabby/01-Idle/Idle 04.png')
+                    left_dc = load_image('graphics/animations/ducky/default/left1.png')
+                    left_fn = load_image('graphics/animations/finn/default/left1.png')
+                    left_cr = load_image('graphics/animations/Crabby/default/left1.png')
                     left_dc = pygame.transform.scale(left_dc, (200, 165))
                     left_rm = pygame.transform.scale(left_rm, (115, 200))
                     left_fn = pygame.transform.scale(left_fn, (147, 200))
@@ -574,15 +601,39 @@ def main():
                     wr_is6 = False
                     wr_is_back = False
                     wr_is_select = 'blocked'
-                    wr_wh_skn = 'rm'
+                    if n == 0:
+                        wr_wh_skn = 'rm'
+                        select_dc = False
+                        select_rm = True
+                        select_cr = False
+                        select_fn = False
+
+                    elif n == 1:
+                        wr_wh_skn = 'fn'
+                        select_dc = False
+                        select_rm = False
+                        select_cr = False
+                        select_fn = True
+
+                    elif n == 2:
+                        wr_wh_skn = 'dc'
+                        select_dc = True
+                        select_rm = False
+                        select_cr = False
+                        select_fn = False
+
+                    elif n == 3:
+
+                        wr_wh_skn = 'cr'
+                        select_dc = False
+                        select_rm = False
+                        select_cr = True
+                        select_fn = False
                     st_is_back = False
                     st_is_purchase = 'inactive'
                     st_is_next = False
                     st_is_last = False
-                    select_dc = False
-                    select_rm = True
-                    select_cr = False
-                    select_fn = False
+
                     count = 0
                     while paused:
                         screen.blit(background, (0, background_y))
@@ -657,21 +708,37 @@ def main():
                                             select_dc = False
                                             select_cr = False
                                             select_fn = False
+                                            character.change_character(0)
+                                            default_change(0)
+                                            n = 0
+
                                         elif wr_wh_skn == 'dc':
                                             select_dc = True
                                             select_cr = False
                                             select_rm = False
                                             select_fn = False
+                                            character.change_character(2)
+                                            default_change(2)
+                                            n = 2
+
                                         elif wr_wh_skn == 'fn':
                                             select_fn = True
                                             select_dc = False
                                             select_rm = False
                                             select_cr = False
+                                            character.change_character(1)
+                                            default_change(1)
+                                            n = 1
+
                                         else:
                                             select_cr = True
                                             select_dc = False
                                             select_rm = False
                                             select_fn = False
+                                            character.change_character(3)
+                                            default_change(3)
+
+                                            n = 3
                                     if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 442:
                                         wr_wh_skn = 'rm'
                                         if not select_rm:
@@ -816,10 +883,10 @@ def main():
 
                 if not (pygame.key.get_pressed()[K_d] or pygame.key.get_pressed()[K_a]):
                     if anim_counter_rl[2] == "right":
-                        character.image = character.right
+                        character.image = character.default_right
                         anim_counter_rl = [0, 0, "right"]
                     else:
-                        character.image = character.left
+                        character.image = character.default_left
                         anim_counter_rl = [0, 0, "left"]
                     steps_dirt[0].stop()
                     steps_dirt[2] = 0
@@ -830,10 +897,10 @@ def main():
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "left"
 
-                    if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
+                    if anim_counter_rl[0] <= len(character.run_left) - 1 and anim_counter_rl[1] % 4 == 0:
                         character.image = character.run_left[anim_counter_rl[0]]
                         anim_counter_rl[0] += 1
-                    elif anim_counter_rl[0] >= 8:
+                    elif anim_counter_rl[0] >= len(character.run_left):
                         anim_counter_rl[0] = 0
 
                     if background_y >= -1226:
@@ -852,10 +919,10 @@ def main():
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "right"
 
-                    if anim_counter_rl[0] <= 7 and anim_counter_rl[1] % 4 == 0:
+                    if anim_counter_rl[0] <= len(character.run_right) - 1 and anim_counter_rl[1] % 4 == 0:
                         character.image = character.run_right[anim_counter_rl[0]]
                         anim_counter_rl[0] += 1
-                    elif anim_counter_rl[0] >= 8:
+                    elif anim_counter_rl[0] >= len(character.run_right):
                         anim_counter_rl[0] = 0
 
                     if background_y >= -1226:
@@ -884,6 +951,9 @@ def main():
 
                     elif event.key == pygame.K_w:
                         character.jump()
+
+                    if event.key == pygame.K_1:
+                        character.change_character(1)
 
             if not character.check_death() and not dead[0] is True:
                 character.check_air()
@@ -951,7 +1021,7 @@ def main():
 
         elif dead[0] is True and dead[1] <= 3:
             if dead[2] % 10 == 0:
-                character.image = character.death[dead[1]]
+                character.rect.y += 70
                 dead[1] += 1
             dead[2] += 1
             dead[0] = True
@@ -977,7 +1047,7 @@ def main():
                     value[0].spawn()
                     value[0].rect.y = 752
             character.rect.y = 650
-            character.image = character.right
+            character.image = character.default_right
 
             background_y = -1600
 
