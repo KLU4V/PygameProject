@@ -8,7 +8,7 @@ global select_rm, select_dc, select_cr, select_fn
 pygame.init()
 pygame.display.set_caption('Jump to space')
 size = width, height = 576, 800
-running = True
+running, game_script = True, True
 
 blocks = pygame.sprite.Group()
 fallen_blocks = pygame.sprite.Group()
@@ -98,7 +98,7 @@ class Hero(pygame.sprite.Sprite):
         self.falling_flag = [False, "stand"]
 
         self.rect.x = 100
-        self.rect.y = 600
+        self.rect.y = 750
 
     def run(self, nx):
         if 0 < self.rect.x + nx < 576 and self.moved is not True:
@@ -150,17 +150,21 @@ class Hero(pygame.sprite.Sprite):
         self.rect.x = prev_x
         self.rect.y = 600
 
-    def check_air(self):
+    def check_pos(self):
         if not pygame.sprite.spritecollideany(self,
                                               fallen_blocks) and self.rect.y + 64 != 800 and self.jump_flag[0] is False:
             self.rect.y += 3
-            if self.falling_flag[0] is True:
+            if self.falling_flag[0] is True and not pygame.sprite.spritecollideany(self,
+                                                                                   fallen_blocks):
                 if self.falling_flag[1] == "right" and 48 <= self.rect.x + 3 <= 496:
                     self.rect.x += 3
                     self.direction_x = 3
                 elif self.falling_flag[1] == "left" and 48 <= self.rect.x - 3 <= 496:
                     self.rect.x -= 3
                     self.direction_x = -3
+
+            if pygame.sprite.spritecollideany(self, walls):
+                self.rect.x -= self.direction_x
 
             if pygame.sprite.spritecollideany(self,
                                               fallen_blocks):
@@ -178,7 +182,6 @@ class Hero(pygame.sprite.Sprite):
             self.rect.y -= self.jump_flag[2]
             self.tick_jump_counter += 1
             self.jump_flag[2] -= 1
-            self.direction_x = 3
             if 48 <= self.rect.x + 3 <= 496:
                 self.rect.x += 3
                 self.direction_x = 3
@@ -196,31 +199,6 @@ class Hero(pygame.sprite.Sprite):
             self.falling_flag = [True, self.jump_flag[1]]
             self.jump_flag = [False, 'stand', 10]
 
-    def check_ground(self):
-        if self.moved is True:
-            for i in fallen_blocks:
-                while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
-                        self.rect.x -= self.direction_x
-
-                    else:
-                        break
-            for i in blocks:
-                while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
-                        self.rect.x -= self.direction_x
-
-                    else:
-                        break
-            for i in walls:
-                while pygame.sprite.collide_rect(self, i):
-                    if self.rect.midbottom[1] != i.rect.midtop[1] + 4:
-                        self.rect.x -= self.direction_x
-
-                    else:
-                        break
-            self.moved = False
-
     def lower(self):
         self.rect.y += 1
         if pygame.sprite.spritecollideany(self, fallen_blocks) or self.rect.y + 64 != 800:
@@ -234,6 +212,11 @@ class Hero(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, blocks):
             return True
         return False
+
+    def dead(self):
+        self.rect.x = 100
+        self.rect.y = 750
+        self.direction_x = 0
 
 
 class Camera:
@@ -490,10 +473,9 @@ tracks = ['sound/tracks/soundtrack1.mp3', 'sound/tracks/soundtrack2.mp3']
 
 
 def main():
-    global running, camera, character, background_y, select_rm, select_dc, select_cr, select_fn, tracks
+    global running, camera, character, background_y, select_rm, select_dc, select_cr, select_fn, tracks, game_script
+    global screen, clock
 
-    screen = pygame.display.set_mode(size)
-    clock = pygame.time.Clock()
     dead = [False, 0, 0]
     anim_counter_rl = [0, 0, "right"]
     score = 0
@@ -503,7 +485,6 @@ def main():
     steps_dirt = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Grass 1.ogg'), False, 0]
     steps_stone = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Cement 12.ogg'), False, 0]
 
-    pygame.mixer.init()
     stopped_music = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(stopped_music)
     pygame.mixer.music.set_volume(0.09)
@@ -536,6 +517,7 @@ def main():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    game_script = False
 
                 if pygame.key.get_pressed()[K_ESCAPE]:
                     paused = True
@@ -874,7 +856,10 @@ def main():
                                         store_open = True
                                     elif 427 <= event.pos[0] <= 527 and 350 <= event.pos[
                                         1] <= 450 and event.button == 1:
-                                        pass
+                                        pygame.mixer.music.stop()
+                                        paused = False
+                                        running = False
+                                        break
 
                         if pygame.key.get_pressed()[K_RETURN]:
                             paused = False
@@ -956,10 +941,9 @@ def main():
                         character.change_character(1)
 
             if not character.check_death() and not dead[0] is True:
-                character.check_air()
-                character.check_ground()
+                character.check_pos()
 
-            if random.randint(0, 40) == 3:
+            if random.randint(0, 60) == 3:
                 for value in blocks_dct.values():
                     if value[1] is False:
                         value[1] = True
@@ -1046,7 +1030,7 @@ def main():
                 if value[1] is True:
                     value[0].spawn()
                     value[0].rect.y = 752
-            character.rect.y = 650
+            character.rect.y = 750
             character.image = character.default_right
 
             background_y = -1600
@@ -1066,9 +1050,80 @@ def main():
                     if event.key == pygame.K_r:
                         dead = [False, 0, 0]
 
+            all_sprites.update()
+            character.dead()
+
         clock.tick(60)
         pygame.display.flip()
 
 
-if __name__ == '__main__':
-    main()
+screen = pygame.display.set_mode(size)
+clock = pygame.time.Clock()
+play_button, leave_button, settings_button = (load_image('menu/PLAY.png'), load_image('menu/LEAVE.png'),
+                                              load_image('menu/SETTINGS.png'))
+
+play_button_pressed, leave_button_pressed, settings_button_pressed = (
+    load_image('menu/PLAY_PRESSED.png'), load_image('menu/LEAVE_PRESSED.png'),
+    load_image('menu/SETTINGS_PRESSED.png'))
+
+play_button_flag, leave_button_flag, settings_button_flag = False, False, False
+
+while game_script:
+    pygame.mixer.init()
+
+    screen.blit(load_image("graphics/background.png"), (0, -1600))
+    if play_button_flag:
+        screen.blit(play_button_pressed, (55, 193))
+    else:
+        screen.blit(play_button, (55, 193))
+
+    if settings_button_flag:
+        screen.blit(settings_button_pressed, (55, 399))
+    else:
+        screen.blit(settings_button, (55, 399))
+
+    if leave_button_flag:
+        screen.blit(leave_button_pressed, (55, 606))
+    else:
+        screen.blit(leave_button, (55, 606))
+
+    for event in pygame.event.get():
+
+        if event.type == pygame.QUIT:
+            game_script = False
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            x_c, y_c = event.pos
+
+            if 109 <= x_c <= 467:
+                if 193 <= y_c <= 269:
+                    running = True
+                    character.rect.x = 100
+                    character.rect.y = 750
+                    camera.default()
+                    main()
+
+                elif 399 <= y_c <= 475:
+                    pass
+
+                elif 607 <= y_c <= 682:
+                    game_script = False
+
+        if event.type == pygame.MOUSEMOTION:
+            x_m, y_m = event.pos
+
+            if 109 <= x_m <= 467:
+                if 193 <= y_m <= 269:
+                    play_button_flag = True
+
+                elif 399 <= y_m <= 475:
+                    settings_button_flag = True
+
+                elif 607 <= y_m <= 682:
+                    leave_button_flag = True
+
+                else:
+                    play_button_flag, leave_button_flag, settings_button_flag = False, False, False
+
+    clock.tick(60)
+    pygame.display.flip()
