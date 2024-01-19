@@ -1,0 +1,14 @@
+Program requirements:
+	Modules which have to installed:
+		pygame 2.5.2
+	Pre-installed modules:
+		os
+		sys
+		random
+	OS:
+		suitable for any OS
+Iron requirements:
+	10 MB of disk space
+	40 MB of RAM
+	GPU and CPU which were produced in 2005 or later
+	Display with minimal resolution 576x800

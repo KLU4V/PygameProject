@@ -98,7 +98,7 @@ class Hero(pygame.sprite.Sprite):
         self.falling_flag = [False, "stand"]
 
         self.rect.x = 100
-        self.rect.y = 750
+        self.rect.y = 600
 
     def run(self, nx):
         if 0 < self.rect.x + nx < 576 and self.moved is not True:
@@ -150,7 +150,7 @@ class Hero(pygame.sprite.Sprite):
         self.rect.x = prev_x
         self.rect.y = 600
 
-    def check_pos(self):
+    def check_air(self):
         if not pygame.sprite.spritecollideany(self,
                                               fallen_blocks) and self.rect.y + 64 != 800 and self.jump_flag[0] is False:
             self.rect.y += 3
@@ -162,9 +162,6 @@ class Hero(pygame.sprite.Sprite):
                 elif self.falling_flag[1] == "left" and 48 <= self.rect.x - 3 <= 496:
                     self.rect.x -= 3
                     self.direction_x = -3
-
-            if pygame.sprite.spritecollideany(self, walls):
-                self.rect.x -= self.direction_x
 
             if pygame.sprite.spritecollideany(self,
                                               fallen_blocks):
@@ -199,6 +196,31 @@ class Hero(pygame.sprite.Sprite):
             self.falling_flag = [True, self.jump_flag[1]]
             self.jump_flag = [False, 'stand', 10]
 
+    def check_ground(self):
+        if self.moved is True:
+            for i in fallen_blocks:
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] >= i.rect.midtop[1]:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
+            for i in blocks:
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] >= i.rect.midtop[1]:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
+            for i in walls:
+                while pygame.sprite.collide_rect(self, i):
+                    if self.rect.midbottom[1] >= i.rect.midtop[1]:
+                        self.rect.x -= self.direction_x
+
+                    else:
+                        break
+            self.moved = False
+
     def lower(self):
         self.rect.y += 1
         if pygame.sprite.spritecollideany(self, fallen_blocks) or self.rect.y + 64 != 800:
@@ -215,7 +237,7 @@ class Hero(pygame.sprite.Sprite):
 
     def dead(self):
         self.rect.x = 100
-        self.rect.y = 750
+        self.rect.y = 600
         self.direction_x = 0
 
 
@@ -879,6 +901,7 @@ def main():
 
                 if pygame.key.get_pressed()[K_a]:
                     character.run(-4)
+                    print(character.rect.x, character.direction_x)
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "left"
 
@@ -901,6 +924,7 @@ def main():
 
                 if pygame.key.get_pressed()[K_d]:
                     character.run(4)
+                    print(character.rect.x, character.direction_x)
                     anim_counter_rl[1] += 1
                     anim_counter_rl[2] = "right"
 
@@ -941,7 +965,8 @@ def main():
                         character.change_character(1)
 
             if not character.check_death() and not dead[0] is True:
-                character.check_pos()
+                character.check_air()
+                character.check_ground()
 
             if random.randint(0, 60) == 3:
                 for value in blocks_dct.values():
@@ -1030,7 +1055,7 @@ def main():
                 if value[1] is True:
                     value[0].spawn()
                     value[0].rect.y = 752
-            character.rect.y = 750
+            character.rect.y = 650
             character.image = character.default_right
 
             background_y = -1600
@@ -1039,19 +1064,23 @@ def main():
                                  36)
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
+            f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
+                                 20)
+            scorefinal = f2.render(f'You scored {score}', True,
+                                (255, 255, 255))
             screen.blit(deadtext, (150, 400))
-            score = 0
+            screen.blit(scorefinal, (170, 500))
             camera.death()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    game_script = False
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         dead = [False, 0, 0]
-
-            all_sprites.update()
-            character.dead()
+                        score = 0
+                        character.dead()
 
         clock.tick(60)
         pygame.display.flip()
@@ -1099,7 +1128,7 @@ while game_script:
                 if 193 <= y_c <= 269:
                     running = True
                     character.rect.x = 100
-                    character.rect.y = 750
+                    character.rect.y = 600
                     camera.default()
                     main()
 
