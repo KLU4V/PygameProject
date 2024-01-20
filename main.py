@@ -43,7 +43,7 @@ def default_change(n):
         file.write(''.join(old_data))
 
 
-class Hero(pygame.sprite.Sprite):
+class Hero(pygame.sprite.Sprite):  # создание персонажа
     select_rm = True
     select_dc = False
     select_cr = False
@@ -65,7 +65,7 @@ class Hero(pygame.sprite.Sprite):
         persona = ['redman', 'finn', 'ducky', 'Crabby'][n]
         character_sizes = {'redman': (32, 56), 'finn': (35, 48), 'ducky': (46, 38), 'Crabby': (46, 38)}
 
-        for f in os.listdir(f'graphics/animations/{persona}/default'):
+        for f in os.listdir(f'graphics/animations/{persona}/default'):  # определение скина
             if 'left' in f'graphics/animations/{persona}/default/' + f:
                 self.default_left = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
                                                            character_sizes[persona])
@@ -95,19 +95,19 @@ class Hero(pygame.sprite.Sprite):
         self.jump_counter = 0
 
         self.moved = False
-        self.jump_flag = [False, 'stand', 0]
+        self.jump_flag = [False, 'stand', 0]  # необходимые переменные для движения
         self.falling_flag = [False, "stand"]
 
         self.rect.x = 100
         self.rect.y = 600
 
-    def run(self, nx):
+    def run(self, nx):  # бег
         if 0 < self.rect.x + nx < 576 and self.moved is not True:
             self.rect.x += nx
             self.direction_x = nx
             self.moved = True
 
-    def jump(self):
+    def jump(self):  # прыжок
         self.jump_counter += 1
         if -1 < self.jump_counter <= 1 and self.jump_flag[1] is not True:
             if self.moved is True:
@@ -118,7 +118,7 @@ class Hero(pygame.sprite.Sprite):
             else:
                 self.jump_flag = [True, "stand", 10]
 
-    def change_character(self, n):
+    def change_character(self, n):  # смена персонажа (считывается из файлов)
         persona = ['redman', 'finn', 'ducky', 'Crabby'][n]
         character_sizes = {'redman': (32, 56), 'finn': (35, 48), 'ducky': (46, 38), 'Crabby': (46, 38)}
         self.default_left, self.default_right = '', ''
@@ -126,7 +126,7 @@ class Hero(pygame.sprite.Sprite):
 
         prev_x = self.rect.x
 
-        for f in os.listdir(f'graphics/animations/{persona}/default'):
+        for f in os.listdir(f'graphics/animations/{persona}/default'):  # поиск анимаций
             if 'left' in f'graphics/animations/{persona}/default/' + f:
                 self.default_left = pygame.transform.scale(load_image(f'graphics/animations/{persona}/default/' + f),
                                                            character_sizes[persona])
@@ -144,14 +144,14 @@ class Hero(pygame.sprite.Sprite):
                 self.run_right.append(pygame.transform.scale(load_image(f'graphics/animations/{persona}/run/' + f),
                                                              character_sizes[persona]))
 
-        self.image = self.default_right
+        self.image = self.default_right  # переопределение масок
 
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = prev_x
         self.rect.y = 600
 
-    def check_air(self):
+    def check_air(self):  # проверка и вычисление траектории прыжка, также сотяние перса на поверхности
         if not pygame.sprite.spritecollideany(self,
                                               fallen_blocks) and self.rect.y + 64 != 800 and self.jump_flag[0] is False:
             self.rect.y += 3
@@ -197,7 +197,7 @@ class Hero(pygame.sprite.Sprite):
             self.falling_flag = [True, self.jump_flag[1]]
             self.jump_flag = [False, 'stand', 10]
 
-    def check_ground(self):
+    def check_ground(self):  # столкновение с объектами на одном уровне с персом
         if self.moved is True:
             for i in fallen_blocks:
                 while pygame.sprite.collide_rect(self, i):
@@ -227,7 +227,7 @@ class Hero(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, fallen_blocks) or self.rect.y + 64 != 800:
             self.rect.y -= 1
 
-    def check_death(self):
+    def check_death(self):  # проверка смерти перса
         # for i in blocks:
         #     if ((i.rect.topleft[0] <= self.rect.left <= i.rect.topright[0]
         #             or i.rect.topleft[0] <= self.rect.right <= i.rect.topright[0])
@@ -249,7 +249,7 @@ class Camera:
         self.upFlag = False
         self.count = 0
 
-    def apply(self, obj):
+    def apply(self, obj):  # передвижение камеры при выстраивании блоков в ряд
         obj.rect.x += self.dx
         obj.rect.y += self.dy
 
@@ -258,11 +258,11 @@ class Camera:
             self.dy = 1
             self.count += 1
 
-    def default(self):
+    def default(self):  # начальное положение
         self.count = 0
         self.upFlag = False
 
-    def death(self):
+    def death(self):  # положение после смерти перса
         self.dx = 0
         self.dy = 0
         self.upFlag = False
@@ -287,7 +287,7 @@ class Block(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprites)
 
-        self.rotate_angle = 0
+        self.rotate_angle = 0  # угол наклона текстуры
 
         self.image = pygame.transform.rotate(self.grass_fallingTitle, self.rotate_angle)
 
@@ -300,7 +300,7 @@ class Block(pygame.sprite.Sprite):
 
         self.rect.y = 900
 
-    def update(self):
+    def update(self):  # обновление координат по у, также проверка столкновений и текстур
         global background_y
 
         for i in fallen_blocks:
@@ -334,7 +334,7 @@ class Block(pygame.sprite.Sprite):
                 elif value[0].rect.y < self.rect.y and pygame.sprite.collide_rect(value[0], self):
                     self.image = pygame.transform.rotate(self.dirt_placedTitle, self.rotate_angle)
 
-    def spawn(self):
+    def spawn(self):  # появление новго блока и определение его позиции по иксу
         global possibilities, background_y
 
         if background_y <= -1226:
@@ -365,10 +365,10 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = x * 48
         self.rect.y = -48
 
-    def invisible(self):
+    def invisible(self):  # убирание блока с экрана
         self.rect.y = 900
 
-    def default(self):
+    def default(self):  # возращение блока в исходную позицию
         global possibilities
 
         possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -405,7 +405,7 @@ class GhostBlock(pygame.sprite.Sprite):
 
         self.rect.y = 900
 
-    def replace(self, x, y, image):
+    def replace(self, x, y, image):  # замена настоящего блока на призрачный
         self.rect.x, self.rect.y = x, y
         self.image = image
 
@@ -426,7 +426,7 @@ class Wall(pygame.sprite.Sprite):
 
         self.add(walls)
 
-        if wall_counter[0] == 0:
+        if wall_counter[0] == 0:  # выстраивание стен и поворот текстур под нужнымм углом
             self.angle = 270
             self.image = pygame.transform.rotate(self.grasswall, self.angle)
         else:
@@ -443,7 +443,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect.y = wall_counter[1]
         self.rect.x = wall_counter[0]
 
-    def update(self):
+    def update(self):  # обновление текстур при достижении определённой выысоты
         global background_y
 
         if background_y >= -1226:
@@ -485,7 +485,8 @@ blocks_dct = {1: [block1, True], 2: [block2, True], 3: [block3, True], 4: [block
               19: [block19, False], 20: [block20, False], 21: [block21, False], 22: [block22, False],
               23: [block23, False],
               24: [block24, False], 25: [block25, False], 26: [block26, False], 27: [block27, False],
-              28: [block28, False], 29: [block29, False], 30: [block30, False]}
+              28: [block28, False], 29: [block29, False],
+              30: [block30, False]}  # словарь с блоками True False отвечает за возможность появления блока
 
 (gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gblock8, gblock9, gblock10) = (
     GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(), GhostBlock(),
@@ -528,7 +529,7 @@ def main():
     with open('values.txt', 'r', encoding='utf8') as file:
         for i in file.readlines():
             if 'n=' in i:
-                n = int(list(i)[-1])
+                n = int(list(i)[-1])  # номер героя из файла
 
     for value in blocks_dct.values():
         if value[1] is True:
@@ -536,7 +537,7 @@ def main():
             value[0].rect.y = 752
 
     while running:
-        if background_y >= -1226:
+        if background_y >= -1226:  # счёт времени для шагов
             if steps_stone[1] is True:
                 steps_stone[2] += 1
         else:
@@ -545,7 +546,7 @@ def main():
 
         if dead[0] is False:
 
-            if character.check_death() or dead[0] is True:
+            if character.check_death() or dead[0] is True:  # проверка смерти перса
                 dead[0] = True
             values_file = open('values.txt', mode='r+', encoding='utf8')
             values = values_file.readlines()
@@ -556,8 +557,10 @@ def main():
                     running = False
                     game_script = False
 
+                # открытие меню паузы
                 if pygame.key.get_pressed()[K_ESCAPE]:
                     paused = True
+                    # загрузка всех спрайтов
                     brightness_low = load_image("graphics/brightness_low.png")
                     brightness_low = pygame.transform.scale(brightness_low, (576, 800))
                     brightness_low = brightness_low.convert()
@@ -602,6 +605,7 @@ def main():
                     left_rm1 = pygame.transform.scale(left_rm, (57, 100))
                     left_fn1 = pygame.transform.scale(left_fn, (73, 100))
                     left_cr1 = pygame.transform.scale(left_cr, (100, 65))
+                    # введение переменных для меню паузы
                     is_start_active = False
                     is_wardrobe_active = False
                     is_store_active = False
@@ -650,7 +654,9 @@ def main():
                     st_is_last = False
 
                     count = 0
+                    # создание цикла паузы
                     while paused:
+                        # вывод начальных спрайтов, надписей
                         screen.blit(background, (0, background_y))
                         all_sprites.draw(screen)
                         screen.blit(brightness_low, (0, 0))
@@ -667,8 +673,10 @@ def main():
                         else:
                             screen.blit(coin, (116, 15))
                         screen.blit(bolding, (50, 10))
+                        # часть цикла при открытии гардероба
                         if wardrobe_open:
                             if wardrobe_open:
+                                # вывод всех спрайтов в гардеробе
                                 f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                                       , 50)
                                 store = f1.render('Wardrobe', True,
@@ -715,11 +723,13 @@ def main():
                             pygame.draw.rect(screen, (50, 50, 50), (275, 300, 224, 284), 2)
                             pygame.draw.line(screen, (50, 50, 50), (387, 300), (387, 584))
                             pygame.draw.line(screen, (50, 50, 50), (275, 442), (499, 442))
+                            # создание задач для кнопок на мыши и клавиатуре
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     quit()
                                 if event.type == pygame.MOUSEMOTION:
+                                    # действия при движении мыши
                                     if wr_is_select != 'blocked':
                                         if 76 <= event.pos[0] <= 276 and 500 <= event.pos[1] <= 600:
                                             wr_is_select = 'active'
@@ -745,9 +755,11 @@ def main():
                                         wr_is_back = True
                                     else:
                                         wr_is_back = False
+                                    # действия при нажатии мыши
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 76 <= event.pos[0] <= 276 and 500 <= event.pos[1] <= 600:
                                         wr_is_select = 'blocked'
+                                        # обращение к функции изменения персонажа
                                         if wr_wh_skn == 'rm':
                                             select_rm = True
                                             select_dc = False
@@ -815,12 +827,13 @@ def main():
                                                 wr_is_select = 'blocked'
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         wardrobe_open = False
-
+                        # часть цикла для магазина
                         elif store_open:
+                            # вывод спрайтов, надписей
                             f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                                   , 50)
                             store = f1.render('Store', True,
-                                                   (255, 255, 255))
+                                              (255, 255, 255))
                             f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                                   , 30)
                             screen.blit(store, (200, 170))
@@ -842,6 +855,7 @@ def main():
                                 screen.blit(next_active, (391, 385))
                             else:
                                 screen.blit(next_inactive, (391, 385))
+                            # часть действий при выборе персонажа
                             if count % 4 == 0:
                                 red_man = f2.render('Red Man', True, (255, 255, 255))
                                 screen.blit(red_man, (210, 250))
@@ -882,11 +896,12 @@ def main():
                                     st_is_purchase = 'blocked'
                                 else:
                                     st_is_purchase = 'inactive'
-
+                            # действия для кнопок мыши клавиатуры
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     quit()
+                                # действия при движении мыши
                                 if event.type == pygame.MOUSEMOTION:
                                     if st_is_purchase != 'blocked':
                                         if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
@@ -905,10 +920,11 @@ def main():
                                         st_is_back = True
                                     else:
                                         st_is_back = False
+                                # действия при нажатии
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         store_open = False
-
+                                    # покупка персонажей
                                     if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
                                         if st_is_purchase != 'blocked':
                                             if count % 4 == 0:
@@ -952,11 +968,14 @@ def main():
                                                         values_file_w.write(f'c={coins}\n')
                                                         values_file_w.write(f's={" ".join(skins)}\n')
                                                         values_file_w.write(f'n={n}')
+                                    # действия при смене персонажей
                                     if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
                                         count -= 1
                                     if 391 <= event.pos[0] <= 421 and 385 <= event.pos[1] <= 415:
                                         count += 1
+                        # основное меню паузы
                         else:
+                            # вывод всех спрайтов
                             f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                                   , 40)
                             pause_menu = f1.render('Pause menu', True,
@@ -979,10 +998,12 @@ def main():
                                 screen.blit(leave_active, (427, 350))
                             else:
                                 screen.blit(leave_inactive, (427, 350))
+                            # действия при нажатии на клавиатуру и мышь
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     quit()
+                                # действия при движении мыши
                                 if event.type == pygame.MOUSEMOTION:
                                     if 51 <= event.pos[0] <= 151 and 350 <= event.pos[1] <= 450:
                                         is_start_active = True
@@ -1000,6 +1021,7 @@ def main():
                                         is_leave_active = True
                                     else:
                                         is_leave_active = not True
+                                # действия при нажатии
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 51 <= event.pos[0] <= 151 and 350 <= event.pos[1] <= 450 and event.button == 1:
                                         paused = False
@@ -1009,6 +1031,7 @@ def main():
                                     elif (301 <= event.pos[0] <= 401 and 350 <= event.pos[1]
                                           <= 450 and event.button == 1):
                                         store_open = True
+                                    # реализация выхода в главное меню
                                     elif 427 <= event.pos[0] <= 527 and 350 <= event.pos[
                                         1] <= 450 and event.button == 1:
                                         pygame.mixer.music.stop()
@@ -1039,7 +1062,7 @@ def main():
 
                         pygame.display.update()
 
-                if not (pygame.key.get_pressed()[K_d] or pygame.key.get_pressed()[K_a]):
+                if not (pygame.key.get_pressed()[K_d] or pygame.key.get_pressed()[K_a]):  # сброс анимаций
                     if anim_counter_rl[2] == "right":
                         character.image = character.default_right
                         anim_counter_rl = [0, 0, "right"]
@@ -1050,7 +1073,7 @@ def main():
                     steps_dirt[2] = 0
                     steps_dirt[1] = False
 
-                if pygame.key.get_pressed()[K_a]:
+                if pygame.key.get_pressed()[K_a]:  # бег влево + анимация
                     character.run(-4)
                     print(character.rect.x, character.direction_x)
                     anim_counter_rl[1] += 1
@@ -1073,7 +1096,7 @@ def main():
                                 steps_dirt[0].play()
                                 steps_dirt[2] = 0
 
-                if pygame.key.get_pressed()[K_d]:
+                if pygame.key.get_pressed()[K_d]:  # бег вправо + анимация
                     character.run(4)
                     print(character.rect.x, character.direction_x)
                     anim_counter_rl[1] += 1
@@ -1105,19 +1128,19 @@ def main():
                 if pygame.key.get_pressed()[K_s]:
                     character.lower()
 
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:  # прыжок
                     if event.key == pygame.K_SPACE:
                         character.jump()
 
                     elif event.key == pygame.K_w:
                         character.jump()
 
-            if not character.check_death() and not dead[0] is True:
+            if not character.check_death() and not dead[0] is True:  # проверка смерти после всех движений
                 character.check_air()
                 character.check_ground()
 
             if random.randint(0, 60) == 3:
-                for value in blocks_dct.values():
+                for value in blocks_dct.values():  # спавн блоков и добавление монет
                     if value[1] is False:
                         value[1] = True
                         value[0].spawn()
@@ -1133,7 +1156,7 @@ def main():
                             values_file_w.write(f'n={n}')
                         break
 
-            if camera.count > 46:
+            if camera.count > 46:  # передвижение камеры при выстраивании блоков в ряд
                 camera.default()
             elif camera.upFlag is True and camera.count <= 46:
                 camera.update()
@@ -1147,7 +1170,8 @@ def main():
             respawn = list()
 
             for value in blocks_dct.values():
-                for up in blocks_dct.values():
+                for up in blocks_dct.values():  # проверка выстраивания блоков в ряд
+                    # и последующая их возможность для появления
                     if (value[1] is True and value[0].movement_flag is False and value[0].rect.centery > 758
                             and up[0].rect.centery < 758 and pygame.sprite.collide_rect(value[0], up[0])
                             and up[0].movement_flag is False):
@@ -1160,7 +1184,7 @@ def main():
 
             i = 0
 
-            if len(respawn) == 10:
+            if len(respawn) == 10: # блоки на респавн
                 for value in blocks_dct.values():
                     if value[0] in respawn:
                         value[1] = False
@@ -1174,7 +1198,7 @@ def main():
             all_sprites.update()
             all_sprites.draw(screen)
 
-            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+            f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf" # счётчик для монет
                                  , 20)
             coins_text = f.render(str(coins), True,
                                   (255, 255, 255))
@@ -1193,7 +1217,7 @@ def main():
             else:
                 screen.blit(coin, (116, 15))
 
-        elif dead[0] is True and dead[1] <= 3:
+        elif dead[0] is True and dead[1] <= 3: # анимация смерти
             if dead[2] % 10 == 0:
                 character.rect.y += 70
                 dead[1] += 1
@@ -1208,7 +1232,7 @@ def main():
             steps_dirt[0].stop()
             steps_stone[0].stop()
 
-        else:
+        else: # экран смерти + сброс всего прогресса
             for c, value in enumerate(blocks_dct.values()):
                 value[0].default()
                 if c < 10:
@@ -1278,14 +1302,14 @@ key_right = font.render('D', True, (0, 0, 0))
 key_menu = font.render('ESC', True, (0, 0, 0))
 key_jump = font.render('W', True, (0, 0, 0))
 
-with open('volume.txt', 'r', encoding='utf8') as f:
+with open('volume.txt', 'r', encoding='utf8') as f: # считывание значений громкости
     for i in f.readlines():
         if 'v1' in i:
             v1 = float(i.split()[-1])
         elif 'v2' in i:
             v2 = float(i.split()[-1])
 
-music_value = [v1, font.render(str(v1 * 1000), True, (0, 0, 0))]
+music_value = [v1, font.render(str(v1 * 1000), True, (0, 0, 0))] # их выставление
 enviroment_value = [v2, font.render(str(v2), True, (0, 0, 0))]
 
 
@@ -1306,8 +1330,8 @@ while game_script:
     pygame.mixer.init()
 
     screen.blit(load_image("graphics/background.png"), (0, -1600))
-    if settings_window is False:
-        if play_button_flag:
+    if settings_window is False: # меню
+        if play_button_flag: # кнопки серые при наведении
             screen.blit(play_button_pressed, (55, 193))
         else:
             screen.blit(play_button, (55, 193))
@@ -1331,7 +1355,7 @@ while game_script:
                 x_c, y_c = event.pos
 
                 if 109 <= x_c <= 467:
-                    if 193 <= y_c <= 269:
+                    if 193 <= y_c <= 269: # запуск игры
                         running = True
                         character.rect.x = 100
                         character.rect.y = 600
@@ -1339,9 +1363,9 @@ while game_script:
                         main()
 
                     elif 399 <= y_c <= 475:
-                        settings_window = True
+                        settings_window = True # выход в меню настрек
 
-                    elif 607 <= y_c <= 682:
+                    elif 607 <= y_c <= 682: # выход из игры
                         game_script = False
 
             if event.type == pygame.MOUSEMOTION:
@@ -1410,7 +1434,7 @@ while game_script:
                         else:
                             back_button_flag = False
 
-            else:
+            else: # смена громкости
                 keyboard.hook(change_volume)
                 if key != '':
                     if key_flag[1] == 'm':
@@ -1420,7 +1444,7 @@ while game_script:
                             music_value[0] = int(key) / 100
                             music_value[1] = font.render(str(music_value[0] * 1000), True, (0, 0, 0))
 
-                            with open('volume.txt', 'r', encoding='utf8') as f:
+                            with open('volume.txt', 'r', encoding='utf8') as f: # запись в данных
                                 data = list()
                                 for i in f.readlines():
                                     data.append(i)
@@ -1444,7 +1468,7 @@ while game_script:
                             enviroment_value[1] = font.render(str(float(enviroment_value[0])), True,
                                                               (0, 0, 0))
 
-                            with open('volume.txt', 'r', encoding='utf8') as f:
+                            with open('volume.txt', 'r', encoding='utf8') as f: # запись в данных
                                 data = list()
                                 for i in f.readlines():
                                     data.append(i)
