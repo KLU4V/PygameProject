@@ -508,6 +508,8 @@ def main():
     score = 0
 
     background = load_image("graphics/background.png")
+    coin = load_image('graphics/coin.png')
+    coin = pygame.transform.scale(coin, (16, 20))
     death_sound = pygame.mixer.Sound('sound/misc sounds/death.ogg')
     steps_dirt = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Grass 1.ogg'), False, 0]
     steps_stone = [pygame.mixer.Sound('sound/misc sounds/steps/ES_Footsteps Cement 12.ogg'), False, 0]
@@ -545,7 +547,10 @@ def main():
 
             if character.check_death() or dead[0] is True:
                 dead[0] = True
-
+            values_file = open('values.txt', mode='r+', encoding='utf8')
+            values = values_file.readlines()
+            coins = int(values[0][2:].strip())
+            skins = values[1][2:].split()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -597,10 +602,6 @@ def main():
                     left_rm1 = pygame.transform.scale(left_rm, (57, 100))
                     left_fn1 = pygame.transform.scale(left_fn, (73, 100))
                     left_cr1 = pygame.transform.scale(left_cr, (100, 65))
-                    values_file = open('values.txt', mode='r+', encoding='utf8')
-                    values = values_file.readlines()
-                    coins = int(values[0][3:].strip())
-                    skins = values[1][3:].split()
                     is_start_active = False
                     is_wardrobe_active = False
                     is_store_active = False
@@ -653,37 +654,67 @@ def main():
                         screen.blit(background, (0, background_y))
                         all_sprites.draw(screen)
                         screen.blit(brightness_low, (0, 0))
+                        f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                              , 20)
+                        bolding = f2.render(str(coins), True,
+                                            (255, 255, 255))
+                        if len(str(coins)) == 1:
+                            screen.blit(coin, (65, 15))
+                        elif len(str(coins)) == 2:
+                            screen.blit(coin, (82, 15))
+                        elif len(str(coins)) == 3:
+                            screen.blit(coin, (99, 15))
+                        else:
+                            screen.blit(coin, (116, 15))
+                        screen.blit(bolding, (50, 10))
                         if wardrobe_open:
-                            screen.blit(back, (73, 260))
-                            screen.blit(left_rm1, (302, 321))
-                            screen.blit(left_cr1, (281, 479))
-                            screen.blit(left_fn1, (406, 321))
-                            screen.blit(left_dc1, (393, 472))
-                            if wr_is_back:
-                                screen.blit(brightness_high1, (75, 260))
-                            if wr_is1:
-                                screen.blit(brightness_high, (275, 300))
-                            if wr_is2:
-                                screen.blit(brightness_high, (275, 442))
-                            if wr_is3:
-                                screen.blit(brightness_high, (387, 300))
-                            if wr_is4:
-                                screen.blit(brightness_high, (387, 442))
-                            if wr_is_select == 'active':
-                                screen.blit(select_active, (74, 500))
-                            elif wr_is_select == 'inactive':
-                                screen.blit(select_inactive, (74, 500))
-                            else:
-                                screen.blit(select_blocked, (74, 500))
-                            if wr_wh_skn == 'rm':
-                                screen.blit(left_rm, (116, 300))
-                            elif wr_wh_skn == 'dc':
-                                screen.blit(left_dc, (75, 335))
-                            elif wr_wh_skn == 'fn':
-                                screen.blit(left_fn, (101, 300))
-                            else:
-                                screen.blit(left_cr, (75, 370))
-                            pygame.draw.rect(screen, (0, 0, 0), (275, 300, 224, 284), 2)
+                            if wardrobe_open:
+                                f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                                      , 50)
+                                store = f1.render('Wardrobe', True,
+                                                  (255, 255, 255))
+                                screen.blit(store, (130, 170))
+                                screen.blit(back, (73, 260))
+                                if 'rm' in skins:
+                                    screen.blit(left_rm1, (302, 321))
+                                if 'cr' in skins:
+                                    screen.blit(left_cr1, (281, 479))
+                                if 'fn' in skins:
+                                    screen.blit(left_fn1, (406, 321))
+                                if 'dc' in skins:
+                                    screen.blit(left_dc1, (393, 472))
+                                if wr_is_back:
+                                    screen.blit(brightness_high1, (75, 260))
+                                if 'rm' in skins:
+                                    if wr_is1:
+                                        screen.blit(brightness_high, (275, 300))
+                                if 'cr' in skins:
+                                    if wr_is2:
+                                        screen.blit(brightness_high, (275, 442))
+                                if 'fn' in skins:
+                                    if wr_is3:
+                                        screen.blit(brightness_high, (387, 300))
+                                if 'dc' in skins:
+                                    if wr_is4:
+                                        screen.blit(brightness_high, (387, 442))
+                                if wr_is_select == 'active':
+                                    screen.blit(select_active, (74, 500))
+                                elif wr_is_select == 'inactive':
+                                    screen.blit(select_inactive, (74, 500))
+                                elif wr_is_select == 'blocked':
+                                    screen.blit(select_blocked, (74, 500))
+                                if wr_wh_skn in skins:
+                                    if wr_wh_skn == 'rm':
+                                        screen.blit(left_rm, (116, 300))
+                                    elif wr_wh_skn == 'dc':
+                                        screen.blit(left_dc, (75, 335))
+                                    elif wr_wh_skn == 'fn':
+                                        screen.blit(left_fn, (101, 300))
+                                    else:
+                                        screen.blit(left_cr, (75, 370))
+                            pygame.draw.rect(screen, (50, 50, 50), (275, 300, 224, 284), 2)
+                            pygame.draw.line(screen, (50, 50, 50), (387, 300), (387, 584))
+                            pygame.draw.line(screen, (50, 50, 50), (275, 442), (499, 442))
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
@@ -754,34 +785,47 @@ def main():
 
                                             n = 3
                                     if 275 <= event.pos[0] <= 387 and 300 <= event.pos[1] <= 442:
-                                        wr_wh_skn = 'rm'
-                                        if not select_rm:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'rm' in skins:
+                                            wr_wh_skn = 'rm'
+                                            if not select_rm:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 275 <= event.pos[0] <= 387 and 443 <= event.pos[1] <= 584:
-                                        wr_wh_skn = 'cr'
-                                        if not select_cr:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'cr' in skins:
+                                            wr_wh_skn = 'cr'
+                                            if not select_cr:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 388 <= event.pos[0] <= 499 and 300 <= event.pos[1] <= 442:
-                                        wr_wh_skn = 'fn'
-                                        if not select_fn:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        if 'fn' in skins:
+                                            wr_wh_skn = 'fn'
+                                            if not select_fn:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 388 <= event.pos[0] <= 499 and 443 <= event.pos[1] <= 584:
-                                        wr_wh_skn = 'dc'
-                                        if not select_dc:
-                                            wr_is_select = 'inactive'
-                                        else:
-                                            wr_is_select = 'blocked'
+                                        print(select_dc)
+                                        if 'dc' in skins:
+                                            wr_wh_skn = 'dc'
+                                            if not select_dc:
+                                                wr_is_select = 'inactive'
+                                            else:
+                                                wr_is_select = 'blocked'
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         wardrobe_open = False
 
                         elif store_open:
+                            f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                                  , 50)
+                            store = f1.render('Store', True,
+                                                   (255, 255, 255))
+                            f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                                  , 30)
+                            screen.blit(store, (200, 170))
                             screen.blit(back, (73, 260))
+                            print(skins)
                             if st_is_back:
                                 screen.blit(brightness_high1, (75, 260))
                             if st_is_purchase == 'active':
@@ -799,13 +843,45 @@ def main():
                             else:
                                 screen.blit(next_inactive, (391, 385))
                             if count % 4 == 0:
+                                red_man = f2.render('Red Man', True, (255, 255, 255))
+                                screen.blit(red_man, (210, 250))
+                                st_rm = f2.render('FREE', True, (255, 255, 255))
+                                screen.blit(st_rm, (245, 580))
                                 screen.blit(left_rm, (230, 300))
+                                if 'rm' in skins:
+                                    st_is_purchase = 'blocked'
+                                else:
+                                    st_is_purchase = 'inactive'
                             elif count % 4 == 1:
+                                finn = f2.render('Finn', True, (255, 255, 255))
+                                screen.blit(finn, (245, 250))
+                                st_fn = f2.render('100 coins', True, (255, 255, 255))
+                                screen.blit(st_fn, (195, 580))
                                 screen.blit(left_fn, (215, 300))
+                                if 'fn' in skins:
+                                    st_is_purchase = 'blocked'
+                                else:
+                                    st_is_purchase = 'inactive'
                             elif count % 4 == 2:
+                                crab = f2.render('Crab', True, (255, 255, 255))
+                                screen.blit(crab, (245, 250))
+                                st_cr = f2.render('500 coins', True, (255, 255, 255))
+                                screen.blit(st_cr, (192, 580))
                                 screen.blit(left_cr, (188, 370))
+                                if 'cr' in skins:
+                                    st_is_purchase = 'blocked'
+                                else:
+                                    st_is_purchase = 'inactive'
                             else:
+                                ducky = f2.render('Ducky', True, (255, 255, 255))
+                                screen.blit(ducky, (230, 250))
+                                st_dc = f2.render('1000 coins', True, (255, 255, 255))
+                                screen.blit(st_dc, (182, 580))
                                 screen.blit(left_dc, (188, 335))
+                                if 'dc' in skins:
+                                    st_is_purchase = 'blocked'
+                                else:
+                                    st_is_purchase = 'inactive'
 
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
@@ -832,13 +908,60 @@ def main():
                                 if event.type == pygame.MOUSEBUTTONUP:
                                     if 75 <= event.pos[0] <= 115 and 260 <= event.pos[1] <= 300:
                                         store_open = False
+
                                     if 188 <= event.pos[0] <= 388 and 500 <= event.pos[1] <= 600:
-                                        st_is_purchase = 'blocked'
+                                        if st_is_purchase != 'blocked':
+                                            if count % 4 == 0:
+                                                st_is_purchase = 'blocked'
+                                            elif count % 4 == 1:
+                                                if coins > 99:
+                                                    coins -= 100
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('fn')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f'n={n}')
+                                            elif count % 4 == 2:
+                                                if coins > 499:
+                                                    coins -= 500
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('cr')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f'n={n}')
+                                            else:
+                                                if coins > 999:
+                                                    coins -= 1000
+                                                    st_is_purchase = 'blocked'
+                                                    clean = open('values.txt', 'w+')
+                                                    clean.seek(0)
+                                                    clean.close()
+                                                    skins.append('dc')
+                                                    with open('values.txt', mode='r+',
+                                                              encoding="utf8") as values_file_w:
+                                                        values_file_w.write(f'c={coins}\n')
+                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f'n={n}')
                                     if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
                                         count -= 1
                                     if 391 <= event.pos[0] <= 421 and 385 <= event.pos[1] <= 415:
                                         count += 1
                         else:
+                            f1 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                                                  , 40)
+                            pause_menu = f1.render('Pause menu', True,
+                                                   (255, 255, 255))
+                            screen.blit(pause_menu, (140, 270))
                             if is_start_active:
                                 screen.blit(start_active, (51, 350))
 
@@ -999,6 +1122,15 @@ def main():
                         value[1] = True
                         value[0].spawn()
                         score += 1
+                        coins += 1
+                        clean = open('values.txt', 'w+')
+                        clean.seek(0)
+                        clean.close()
+                        with open('values.txt', mode='r+',
+                                  encoding="utf8") as values_file_w:
+                            values_file_w.write(f'c={coins}\n')
+                            values_file_w.write(f's={' '.join(skins)}\n')
+                            values_file_w.write(f'n={n}')
                         break
 
             if camera.count > 46:
@@ -1044,14 +1176,22 @@ def main():
 
             f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                  , 20)
-            score_text = f.render(str(score), True,
+            coins_text = f.render(str(coins), True,
                                   (255, 255, 255))
             f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
                                   , 22)
-            bolding = f2.render(str(score), True,
+            bolding = f2.render(str(coins), True,
                                 (0, 0, 0))
-            screen.blit(bolding, (270, 20))
-            screen.blit(score_text, (270, 20))
+            screen.blit(bolding, (50, 10))
+            screen.blit(coins_text, (50, 10))
+            if len(str(coins)) == 1:
+                screen.blit(coin, (65, 15))
+            elif len(str(coins)) == 2:
+                screen.blit(coin, (82, 15))
+            elif len(str(coins)) == 3:
+                screen.blit(coin, (99, 15))
+            else:
+                screen.blit(coin, (116, 15))
 
         elif dead[0] is True and dead[1] <= 3:
             if dead[2] % 10 == 0:
@@ -1084,17 +1224,25 @@ def main():
             character.image = character.default_right
 
             background_y = -1600
-
             f = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
                                  36)
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
+
             f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
                                   20)
-            scorefinal = f2.render(f'You scored {score}', True,
+            scorefinal = f2.render(f'You get +{score}', True,
                                    (255, 255, 255))
+            if len(str(score)) == 1:
+                screen.blit(coin, (365, 454))
+                screen.blit(scorefinal, (220, 450))
+            elif len(str(score)) == 2:
+                screen.blit(scorefinal, (213, 450))
+                screen.blit(coin, (372, 454))
+            elif len(str(score)) == 1:
+                screen.blit(scorefinal, (205, 450))
+                screen.blit(coin, (380, 454))
             screen.blit(deadtext, (150, 400))
-            screen.blit(scorefinal, (170, 500))
             camera.death()
 
             for event in pygame.event.get():
@@ -1130,7 +1278,7 @@ key_right = font.render('D', True, (0, 0, 0))
 key_menu = font.render('ESC', True, (0, 0, 0))
 key_jump = font.render('W', True, (0, 0, 0))
 
-with open('values.txt', 'r', encoding='utf8') as f:
+with open('volume.txt', 'r', encoding='utf8') as f:
     for i in f.readlines():
         if 'v1' in i:
             v1 = float(i.split()[-1])
@@ -1272,7 +1420,7 @@ while game_script:
                             music_value[0] = int(key) / 100
                             music_value[1] = font.render(str(music_value[0] * 1000), True, (0, 0, 0))
 
-                            with open('values.txt', 'r', encoding='utf8') as f:
+                            with open('volume.txt', 'r', encoding='utf8') as f:
                                 data = list()
                                 for i in f.readlines():
                                     data.append(i)
@@ -1280,7 +1428,7 @@ while game_script:
                                 if 'v1' in data[i]:
                                     data[i] = f'v1 = {music_value[0]}\n'
 
-                            with open('values.txt', 'w', encoding='utf8') as f:
+                            with open('volume.txt', 'w', encoding='utf8') as f:
                                 f.write(''.join(data))
 
                             key_flag = [False, '']
@@ -1296,7 +1444,7 @@ while game_script:
                             enviroment_value[1] = font.render(str(float(enviroment_value[0])), True,
                                                               (0, 0, 0))
 
-                            with open('values.txt', 'r', encoding='utf8') as f:
+                            with open('volume.txt', 'r', encoding='utf8') as f:
                                 data = list()
                                 for i in f.readlines():
                                     data.append(i)
@@ -1304,7 +1452,7 @@ while game_script:
                                 if 'v2' in data[i]:
                                     data[i] = f'v2 = {enviroment_value[0]}\n'
 
-                            with open('values.txt', 'w', encoding='utf8') as f:
+                            with open('volume.txt', 'w', encoding='utf8') as f:
                                 f.write(''.join(data))
 
                             key_flag = [False, '']
