@@ -1130,8 +1130,15 @@ key_right = font.render('D', True, (0, 0, 0))
 key_menu = font.render('ESC', True, (0, 0, 0))
 key_jump = font.render('W', True, (0, 0, 0))
 
-music_value = [0.09, font.render('100', True, (0, 0, 0))]
-enviroment_value = [100, font.render('100', True, (0, 0, 0))]
+with open('values.txt', 'r', encoding='utf8') as f:
+    for i in f.readlines():
+        if 'v1' in i:
+            v1 = float(i.split()[-1])
+        elif 'v2' in i:
+            v2 = float(i.split()[-1])
+
+music_value = [v1, font.render(str(v1 * 1000), True, (0, 0, 0))]
+enviroment_value = [v2, font.render(str(v2), True, (0, 0, 0))]
 
 
 def change_volume(k):
@@ -1263,8 +1270,21 @@ while game_script:
                         try:
 
                             music_value[0] = int(key) / 100
-                            music_value[1] = font.render(key, True, (0, 0, 0))
+                            music_value[1] = font.render(str(music_value[0] * 1000), True, (0, 0, 0))
+
+                            with open('values.txt', 'r', encoding='utf8') as f:
+                                data = list()
+                                for i in f.readlines():
+                                    data.append(i)
+                            for i in range(len(data)):
+                                if 'v1' in data[i]:
+                                    data[i] = f'v1 = {music_value[0]}\n'
+
+                            with open('values.txt', 'w', encoding='utf8') as f:
+                                f.write(''.join(data))
+
                             key_flag = [False, '']
+
                         except ValueError:
 
                             key_flag = [False, '']
@@ -1273,7 +1293,20 @@ while game_script:
                         try:
 
                             enviroment_value[0] = int(key) * 10
-                            enviroment_value[1] = font.render(key, True, (0, 0, 0))
+                            enviroment_value[1] = font.render(str(float(enviroment_value[0])), True,
+                                                              (0, 0, 0))
+
+                            with open('values.txt', 'r', encoding='utf8') as f:
+                                data = list()
+                                for i in f.readlines():
+                                    data.append(i)
+                            for i in range(len(data)):
+                                if 'v2' in data[i]:
+                                    data[i] = f'v2 = {enviroment_value[0]}\n'
+
+                            with open('values.txt', 'w', encoding='utf8') as f:
+                                f.write(''.join(data))
+
                             key_flag = [False, '']
                         except ValueError:
 
