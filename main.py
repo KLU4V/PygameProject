@@ -924,7 +924,7 @@ def main():
                                                     with open('values.txt', mode='r+',
                                                               encoding="utf8") as values_file_w:
                                                         values_file_w.write(f'c={coins}\n')
-                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f's={" ".join(skins)}\n')
                                                         values_file_w.write(f'n={n}')
                                             elif count % 4 == 2:
                                                 if coins > 499:
@@ -937,7 +937,7 @@ def main():
                                                     with open('values.txt', mode='r+',
                                                               encoding="utf8") as values_file_w:
                                                         values_file_w.write(f'c={coins}\n')
-                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f's={" ".join(skins)}\n')
                                                         values_file_w.write(f'n={n}')
                                             else:
                                                 if coins > 999:
@@ -950,7 +950,7 @@ def main():
                                                     with open('values.txt', mode='r+',
                                                               encoding="utf8") as values_file_w:
                                                         values_file_w.write(f'c={coins}\n')
-                                                        values_file_w.write(f's={' '.join(skins)}\n')
+                                                        values_file_w.write(f's={" ".join(skins)}\n')
                                                         values_file_w.write(f'n={n}')
                                     if 155 <= event.pos[0] <= 185 and 385 <= event.pos[1] <= 415:
                                         count -= 1
@@ -1129,7 +1129,7 @@ def main():
                         with open('values.txt', mode='r+',
                                   encoding="utf8") as values_file_w:
                             values_file_w.write(f'c={coins}\n')
-                            values_file_w.write(f's={' '.join(skins)}\n')
+                            values_file_w.write(f's={" ".join(skins)}\n')
                             values_file_w.write(f'n={n}')
                         break
 
