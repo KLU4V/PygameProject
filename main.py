@@ -1,4 +1,5 @@
 import pygame
+import keyboard
 import os
 import sys
 from pygame.locals import *
@@ -448,6 +449,9 @@ class Wall(pygame.sprite.Sprite):
         if background_y >= -1226:
             self.image = pygame.transform.rotate(self.spacewall, self.angle)
 
+        else:
+            self.image = pygame.transform.rotate(self.grasswall, self.angle)
+
 
 (wall1, wall2, wall3, wall4, wall5, wall6, wall7, wall8, wall9, wall10, wall11, wall12, wall13, wall14,
  wall15, wall16, wall17wall18, wall19, wall20, wall21, wall22, wall23, wall24, wall25, wall26, wall27,
@@ -492,6 +496,7 @@ gblocks_lst = [gblock1, gblock2, gblock3, gblock4, gblock5, gblock6, gblock7, gb
 character = Hero()
 camera = Camera()
 tracks = ['sound/tracks/soundtrack1.mp3', 'sound/tracks/soundtrack2.mp3']
+action = 'stay'
 
 
 def main():
@@ -509,7 +514,12 @@ def main():
 
     stopped_music = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(stopped_music)
-    pygame.mixer.music.set_volume(0.09)
+
+    pygame.mixer.music.set_volume(music_value[0])
+    death_sound.set_volume(enviroment_value[0])
+    steps_dirt[0].set_volume(enviroment_value[0])
+    steps_stone[0].set_volume(enviroment_value[0])
+
     pygame.mixer.music.load(tracks[0])
     pygame.mixer.music.play(-1)
 
@@ -881,7 +891,25 @@ def main():
                                         pygame.mixer.music.stop()
                                         paused = False
                                         running = False
-                                        break
+                                        for c, value in enumerate(blocks_dct.values()):
+                                            value[0].default()
+                                            if c < 10:
+                                                value[1] = True
+                                            else:
+                                                value[1] = False
+
+                                        for value in blocks_dct.values():
+                                            if value[1] is True:
+                                                value[0].spawn()
+                                                value[0].rect.y = 752
+                                        character.rect.y = 650
+                                        character.image = character.default_right
+
+                                        background_y = -1600
+
+                                        dead = [False, 0, 0]
+                                        score = 0
+                                        character.dead()
 
                         if pygame.key.get_pressed()[K_RETURN]:
                             paused = False
@@ -960,9 +988,6 @@ def main():
 
                     elif event.key == pygame.K_w:
                         character.jump()
-
-                    if event.key == pygame.K_1:
-                        character.change_character(1)
 
             if not character.check_death() and not dead[0] is True:
                 character.check_air()
@@ -1065,9 +1090,9 @@ def main():
             deadtext = f.render('R to restart', True,
                                 (255, 255, 255))
             f2 = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf",
-                                 20)
+                                  20)
             scorefinal = f2.render(f'You scored {score}', True,
-                                (255, 255, 255))
+                                   (255, 255, 255))
             screen.blit(deadtext, (150, 400))
             screen.blit(scorefinal, (170, 500))
             camera.death()
@@ -1091,68 +1116,168 @@ clock = pygame.time.Clock()
 play_button, leave_button, settings_button = (load_image('menu/PLAY.png'), load_image('menu/LEAVE.png'),
                                               load_image('menu/SETTINGS.png'))
 
-play_button_pressed, leave_button_pressed, settings_button_pressed = (
+play_button_pressed, leave_button_pressed, settings_button_pressed, back_button_pressed = (
     load_image('menu/PLAY_PRESSED.png'), load_image('menu/LEAVE_PRESSED.png'),
-    load_image('menu/SETTINGS_PRESSED.png'))
+    load_image('menu/SETTINGS_PRESSED.png'), load_image('menu/BACK_PRESSED.png'))
 
-play_button_flag, leave_button_flag, settings_button_flag = False, False, False
+controls_window, sound_window, back_button = (
+    load_image('menu/CONTROLS.png'), load_image('menu/ENVIROMENT.png'), load_image('menu/BACK.png'))
+
+font = pygame.font.Font("graphics/fonts/Silkscreen-Regular.ttf"
+                        , 22)
+key_left = font.render('A', True, (0, 0, 0))
+key_right = font.render('D', True, (0, 0, 0))
+key_menu = font.render('ESC', True, (0, 0, 0))
+key_jump = font.render('W', True, (0, 0, 0))
+
+music_value = [0.09, font.render('100', True, (0, 0, 0))]
+enviroment_value = [100, font.render('100', True, (0, 0, 0))]
+
+
+def change_volume(k):
+    global key
+
+    key = str(k.name)
+    print(key)
+
+
+play_button_flag, leave_button_flag, settings_button_flag, back_button_flag = False, False, False, False
+settings_window = False
+key_flag = [False, '']
+
+key = ''
 
 while game_script:
     pygame.mixer.init()
 
     screen.blit(load_image("graphics/background.png"), (0, -1600))
-    if play_button_flag:
-        screen.blit(play_button_pressed, (55, 193))
+    if settings_window is False:
+        if play_button_flag:
+            screen.blit(play_button_pressed, (55, 193))
+        else:
+            screen.blit(play_button, (55, 193))
+
+        if settings_button_flag:
+            screen.blit(settings_button_pressed, (55, 399))
+        else:
+            screen.blit(settings_button, (55, 399))
+
+        if leave_button_flag:
+            screen.blit(leave_button_pressed, (55, 606))
+        else:
+            screen.blit(leave_button, (55, 606))
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                game_script = False
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x_c, y_c = event.pos
+
+                if 109 <= x_c <= 467:
+                    if 193 <= y_c <= 269:
+                        running = True
+                        character.rect.x = 100
+                        character.rect.y = 600
+                        camera.default()
+                        main()
+
+                    elif 399 <= y_c <= 475:
+                        settings_window = True
+
+                    elif 607 <= y_c <= 682:
+                        game_script = False
+
+            if event.type == pygame.MOUSEMOTION:
+                x_m, y_m = event.pos
+
+                if 109 <= x_m <= 467:
+                    if 193 <= y_m <= 269:
+                        play_button_flag = True
+
+                    elif 399 <= y_m <= 475:
+                        settings_button_flag = True
+
+                    elif 607 <= y_m <= 682:
+                        leave_button_flag = True
+
+                    else:
+                        play_button_flag, leave_button_flag, settings_button_flag = False, False, False
     else:
-        screen.blit(play_button, (55, 193))
+        if back_button_flag is True:
+            screen.blit(back_button_pressed, (55, 606))
+        else:
+            screen.blit(back_button, (55, 606))
 
-    if settings_button_flag:
-        screen.blit(settings_button_pressed, (55, 399))
-    else:
-        screen.blit(settings_button, (55, 399))
+        screen.blit(sound_window, (112, 356))
+        screen.blit(controls_window, (48, 36))
 
-    if leave_button_flag:
-        screen.blit(leave_button_pressed, (55, 606))
-    else:
-        screen.blit(leave_button, (55, 606))
+        screen.blit(key_left, (416, 143))
+        screen.blit(key_right, (416, 173))
+        screen.blit(key_menu, (416, 203))
+        screen.blit(key_jump, (416, 233))
 
-    for event in pygame.event.get():
+        screen.blit(music_value[1], (382, 421))
+        screen.blit(enviroment_value[1], (382, 471))
 
-        if event.type == pygame.QUIT:
-            game_script = False
+        for event in pygame.event.get():
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            x_c, y_c = event.pos
+            if event.type == pygame.QUIT:
+                game_script = False
+            if key_flag[0] is False:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x_c, y_c = event.pos
+                    print(event.pos)
 
-            if 109 <= x_c <= 467:
-                if 193 <= y_c <= 269:
-                    running = True
-                    character.rect.x = 100
-                    character.rect.y = 600
-                    camera.default()
-                    main()
+                    if 109 <= x_c <= 467:
 
-                elif 399 <= y_c <= 475:
-                    pass
+                        if 607 <= y_c <= 682:
+                            settings_window = False
 
-                elif 607 <= y_c <= 682:
-                    game_script = False
+                    if 385 <= x_c <= 427:
 
-        if event.type == pygame.MOUSEMOTION:
-            x_m, y_m = event.pos
+                        if 431 <= y_c <= 443:
+                            key_flag = [True, 'm']
+                            key = ''
 
-            if 109 <= x_m <= 467:
-                if 193 <= y_m <= 269:
-                    play_button_flag = True
+                        elif 481 <= y_c <= 493:
+                            key_flag = [True, 'e']
+                            key = ''
+                if event.type == pygame.MOUSEMOTION:
+                    x_m, y_m = event.pos
 
-                elif 399 <= y_m <= 475:
-                    settings_button_flag = True
+                    if 109 <= x_m <= 467:
 
-                elif 607 <= y_m <= 682:
-                    leave_button_flag = True
+                        if 607 <= y_m <= 682:
+                            back_button_flag = True
 
-                else:
-                    play_button_flag, leave_button_flag, settings_button_flag = False, False, False
+                        else:
+                            back_button_flag = False
+
+            else:
+                keyboard.hook(change_volume)
+                if key != '':
+                    if key_flag[1] == 'm':
+
+                        try:
+
+                            music_value[0] = int(key) / 100
+                            music_value[1] = font.render(key, True, (0, 0, 0))
+                            key_flag = [False, '']
+                        except ValueError:
+
+                            key_flag = [False, '']
+                    else:
+
+                        try:
+
+                            enviroment_value[0] = int(key) * 10
+                            enviroment_value[1] = font.render(key, True, (0, 0, 0))
+                            key_flag = [False, '']
+                        except ValueError:
+
+                            key_flag = [False, '']
 
     clock.tick(60)
     pygame.display.flip()
